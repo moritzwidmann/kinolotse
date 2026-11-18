@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kinolotse</title>
+<meta name="theme-color" content="#0a0b0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kinolotse">
+<style>
+:root{color-scheme:dark;--bg:#0a0b0e;--c:#14171c;--l:#252a32;--f:#e9ebf0;--m:#8b93a2;--a:#3ddc84;--r:#ff7b7b;--y:#ffc857}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:15px/1.5 -apple-system,system-ui,sans-serif;background:var(--bg);color:var(--f);padding-bottom:80px}
+header{padding:12px 16px;border-bottom:1px solid var(--l);display:flex;gap:9px;align-items:center;position:sticky;top:0;background:var(--bg);z-index:20}
+h1{font-size:15px;margin:0}.ver{font-size:10px;color:var(--m);border:1px solid var(--l);padding:1px 6px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--a)}.spacer{flex:1}
+#err{display:none;background:#3a1414;color:#ffb4b4;font:11.5px/1.4 ui-monospace,monospace;padding:8px 14px;border-bottom:1px solid #6b2222;white-space:pre-wrap}
+#err.on{display:block}
+nav{display:flex;gap:6px;padding:9px 14px;border-bottom:1px solid var(--l);overflow-x:auto;position:sticky;top:49px;background:var(--bg);z-index:19}
+nav a{flex:0 0 auto;padding:8px 13px;border-radius:99px;border:1px solid var(--l);color:var(--m);font-size:13px;text-decoration:none}
+nav a.on,nav a:target{background:var(--a);color:#04140b;border-color:var(--a);font-weight:700}
+main{max-width:760px;margin:0 auto;padding:16px}
+.page{display:none}
+#page-suche{display:block}
+.page:target{display:block}
+body:has(.page:target) #page-suche{display:none}
+#page-suche:target{display:block}
+form{display:flex;gap:8px;margin-bottom:12px}
+input,textarea,select{font:inherit;padding:12px 13px;border-radius:10px;border:1px solid var(--l);background:var(--c);color:var(--f);width:100%}
+button{padding:12px 16px;border-radius:10px;border:0;background:var(--a);color:#04140b;font-weight:700;font-size:15px;cursor:pointer}
+button:disabled{opacity:.4}
+button.ghost{background:transparent;border:1px solid var(--l);color:var(--m);font-weight:500}
+button.small{padding:8px 12px;font-size:13px}
+.job{background:var(--c);border:1px solid var(--l);border-radius:13px;padding:14px 15px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.st{font-size:11px;color:var(--m);text-transform:uppercase;letter-spacing:.7px}
+.bar{height:5px;background:#07080a;border-radius:99px;overflow:hidden;margin:10px 0}
+.bar>i{display:block;height:100%;width:0;background:var(--a);transition:width .4s}
+.meta{display:flex;gap:14px;font-size:12px;color:var(--m);margin-bottom:8px;flex-wrap:wrap}
+.meta b{color:var(--f)}
+.src{display:flex;flex-direction:column;gap:4px;margin:8px 0}
+.src div{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 8px;background:#0c0e12;border-radius:7px;border:1px solid #1c2028}
+.log{font:11.5px/1.55 ui-monospace,Menlo,monospace;color:var(--m);max-height:160px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.log .w{color:var(--y)}.log .e{color:var(--r)}
+a{color:var(--a)}
+.acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.acts a,.acts button{padding:9px 13px;border-radius:9px;border:1px solid var(--l);background:#0f1216;color:var(--f);font-size:13px;font-weight:500;text-decoration:none}
+.urlin{font:11px ui-monospace,Menlo,monospace;padding:9px;background:#07080a;border:1px solid var(--l);color:var(--a);border-radius:8px;margin-top:7px;-webkit-user-select:all;user-select:all}
+.muted{color:var(--m);font-size:12.5px}
+.pick{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+.pick button{text-align:left;padding:10px 12px;font-weight:500;background:#0f1216;border:1px solid var(--l);color:var(--f);font-size:14px}
+.card{background:var(--c);border:1px solid var(--l);border-radius:13px;padding:14px;margin-bottom:12px}
+.card h2{font-size:12px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.7px;color:var(--m)}
+label.f{display:block;margin-bottom:10px;font-size:13px;color:var(--m)}
+label.f input,label.f select,label.f textarea{margin-top:5px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:6px 4px;border-bottom:1px solid var(--l)}
+td:last-child{text-align:right;white-space:nowrap}
+.tag{font-size:11px;padding:2px 7px;border-radius:99px;border:1px solid var(--l);color:var(--m)}
+.tag.ok{color:var(--a);border-color:var(--a)}.tag.bad{color:var(--r);border-color:var(--r)}
+.hide{display:none!important}
+#recbox{position:fixed;left:0;right:0;bottom:0;background:#0d0f13;border-top:1px solid var(--l);padding:10px 14px;z-index:50}
+#recbox video{width:100%;max-height:32vh;background:#000;border-radius:9px}
+#recbar{display:flex;gap:8px;align-items:center;margin-top:8px}
+#recmsg{font-size:12px;color:var(--y);flex:1}
+</style>
+</head>
+<body>
+<header><span class="dot" id="dot"></span><h1>Kinolotse</h1><span class="ver" id="ver">–</span><span class="spacer"></span><span class="muted" id="status">startet…</span></header>
+<div id="err"></div>
+<nav>
+  <a href="#suche" data-nav="suche">Suche</a>
+  <a href="#url" data-nav="url">Beliebige Seite</a>
+  <a href="#verlauf" data-nav="verlauf">Verlauf</a>
+  <a href="#diagnose" data-nav="diagnose">Diagnose</a>
+  <a href="#einstellungen" data-nav="einstellungen">Einstellungen</a>
+</nav>
+<main>
+  <section class="page" id="page-suche">
+    <form id="form"><input id="q" placeholder="Filmtitel – Tippfehler sind okay" autocomplete="off"><button id="go" type="submit">Suchen</button></form>
+    <div id="jobs"></div>
+  </section>
+
+  <section class="page" id="page-url">
+    <div class="card">
+      <h2>Link zu einer Filmseite</h2>
+      <p class="muted">Für jede Seite, die hier nicht eingetragen ist.</p>
+      <input id="anyUrl" placeholder="https://beliebige-seite.tld/film/xyz">
+      <button class="small" id="anyGo" style="margin-top:9px">Seite auswerten</button>
+    </div>
+    <div class="card">
+      <h2>Direkter Video-Link</h2>
+      <input id="rawUrl" placeholder="https://…/film.mp4 oder .m3u8">
+      <button class="small" id="rawGo" style="margin-top:9px">Prüfen</button>
+    </div>
+  </section>
+
+  <section class="page" id="page-verlauf"><div id="history"><p class="muted">noch nichts geladen</p></div></section>
+
+  <section class="page" id="page-diagnose">
+    <div class="card">
+      <h2>Selbsttest</h2>
+      <p class="muted">Prüft Reader, Proxies und Portale. Tote Quellen werden abgeschaltet.</p>
+      <button id="diagRun">Diagnose starten</button>
+      <div id="diagOut" style="margin-top:10px"></div>
+    </div>
+    <div class="card"><h2>Lernstand</h2><div id="learnOut"><p class="muted">noch keine Daten</p></div><button class="ghost small" id="resetLearn" style="margin-top:8px">Zurücksetzen</button></div>
+  </section>
+
+  <section class="page" id="page-einstellungen">
+    <div class="card">
+      <h2>Verhalten</h2>
+      <label class="f">Geduld pro Portal (Sekunden)<input type="number" id="s_budget" min="10" max="180"></label>
+      <label class="f">Gleichzeitige Portale<input type="number" id="s_parallel" min="1" max="5"></label>
+      <label class="f">Max. Quellen<input type="number" id="s_maxAttempts" min="5" max="200"></label>
+      <label class="f">Mindestgröße KB<input type="number" id="s_minBytes" min="50" step="50"></label>
+      <label class="f">Ähnlichkeitsschwelle<input type="number" id="s_threshold" min="0.3" max="0.9" step="0.05"></label>
+      <label class="f">Aufnahme-Tempo<select id="s_rate"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+    </div>
+    <div class="card"><h2>Reader</h2><textarea id="s_readers" rows="2"></textarea></div>
+    <div class="card"><h2>HTML-Proxies</h2><textarea id="s_proxies" rows="4"></textarea></div>
+    <div class="card"><h2>Portale</h2><div id="provList"></div>
+      <details style="margin-top:10px"><summary class="muted">Portal hinzufügen</summary>
+        <div style="margin-top:8px">
+          <label class="f">Name<input id="np_name"></label>
+          <label class="f">Basis-URL<input id="np_base"></label>
+          <label class="f">Such-URL mit {q}<input id="np_search"></label>
+          <label class="f">Pflicht-Teil im Link<input id="np_must" placeholder="/film/"></label>
+          <button class="small" id="np_add">Hinzufügen</button>
+        </div>
+      </details>
+    </div>
+    <div class="card"><button id="save" style="width:100%">Speichern</button></div>
+  </section>
+</main>
+
+<div id="recbox" class="hide">
+  <video id="recvideo" playsinline muted></video>
+  <div id="recbar"><span id="recmsg">Aufnahme…</span><button class="small" id="recStop">Stop &amp; speichern</button></div>
+</div>
+
+<noscript><p style="padding:20px;color:#ff7b7b">JavaScript ist blockiert. Die Reiter funktionieren, aber Suchen nicht.</p></noscript>
+
+<script>
+"use strict";
+var VERSION = "3.2";
+
+/* ---------- Fehlerbehandlung: sichtbar, aber nicht tödlich ---------- */
+function fail(where, e){
+  try {
+    var box = document.getElementById("err");
+    if (box){
+      box.className = "on";
+      box.textContent += "[" + where + "] " + ((e && (e.message || e)) || "Fehler") + "\n";
+    }
+    var s = document.getElementById("status");
+    if (s) s.textContent = "Fehler";
+    var d = document.getElementById("dot");
+    if (d) d.style.background = "#ff7b7b";
+  } catch(x){}
+  if (window.console) console.error(where, e);
+}
+function safe(name, fn){ try { fn(); } catch(e){ fail(name, e); } }
+window.addEventListener("error", function(e){ fail("Skript", e.message); });
+window.addEventListener("unhandledrejection", function(e){ fail("Ablauf", e.reason); });
+
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function setStatus(t, bad){
+  var s = $("status"); if (s) s.textContent = t;
+  var d = $("dot"); if (d) d.style.background = bad ? "#ff7b7b" : "#3ddc84";
+}
+
+/* ---------- Daten ---------- */
+var DEFAULTS = {
+  budget: 45, parallel: 3, maxAttempts: 40, minBytes: 400, threshold: 0.5, rate: 1,
+  readers: ["https://r.jina.ai/{url}"],
+  proxies: [
+    "https://api.allorigins.win/raw?url={url}",
+    "https://api.codetabs.com/v1/proxy?quest={url}",
+    "https://thingproxy.freeboard.io/fetch/{url}",
+    "https://corsproxy.io/?url={url}"
+  ],
+  providers: [
+    { key:"filmpalast", name:"Filmpalast", base:"https://filmpalast.to", search:"https://filmpalast.to/search/title/{q}", must:"/stream/", enabled:true, fails:0 },
+    { key:"filmpalastla", name:"Filmpalast.la", base:"https://filmpalast.la", search:"https://filmpalast.la/search/title/{q}", must:"/stream/", enabled:true, fails:0 },
+    { key:"megakino", name:"Megakino", base:"https://megakino.to", search:"https://megakino.to/search/{q}", must:"/watch/", enabled:true, fails:0 },
+    { key:"aniworld", name:"AniWorld", base:"https://aniworld.to", search:"https://aniworld.to/search?q={q}", must:"/anime/stream/", enabled:true, fails:0 },
+    { key:"streamkiste", name:"Streamkiste", base:"https://streamkiste.tv", search:"https://streamkiste.tv/search?q={q}", must:"-stream", enabled:false, fails:0 },
+    { key:"sto", name:"S.to", base:"https://s.to", search:"https://s.to/search?q={q}", must:"/serie/", enabled:false, fails:0 },
+    { key:"filmfans", name:"Filmfans", base:"https://filmfans.org", search:"https://filmfans.org/search?q={q}", must:"/", enabled:false, fails:0 }
+  ]
+};
+var HOSTERS = [
+  { key:"vidoza", name:"Vidoza", re:/vidoza\.(?:net|to)/i, score:94 },
+  { key:"voe", name:"VOE", re:/voe\.(?:sx|to|re)/i, score:88 },
+  { key:"odysseusa", name:"Odysseusa", re:/odysseusa\.(?:cc|to|com)/i, score:82 },
+  { key:"vidsonic", name:"Vidsonic", re:/vidsonic\.(?:net|com)/i, score:78 },
+  { key:"filemoon", name:"Filemoon", re:/filemoon\.(?:sx|to|in)/i, score:70 },
+  { key:"vidmoly", name:"Vidmoly", re:/vidmoly\.(?:to|me)/i, score:66 },
+  { key:"luluvdo", name:"LuluVDO", re:/luluvdo\.com/i, score:60 },
+  { key:"streamtape", name:"Streamtape", re:/(?:streamtape|stape)\.(?:com|to)/i, score:56 },
+  { key:"doodstream", name:"Doodstream", re:/dood\.(?:to|so|watch|re|li)/i, score:48 },
+  { key:"streamlare", name:"Streamlare", re:/streamlare\.com/i, score:46 },
+  { key:"vudeo", name:"Vudeo", re:/vudeo\.(?:net|io)/i, score:44 },
+  { key:"wolfstream", name:"Wolfstream", re:/wolfstream\.tv/i, score:42 }
+];
+var RX_HTML = /(?:href|src|data-src|data-url)\s*=\s*["']([^"'\s]+)["']/gi;
+var RX_MD = /\]\((https?:\/\/[^)\s]+)/gi;
+var RX_BARE = /(https?:\/\/[^\s"'<>)\]]+\.(?:mp4|m3u8|webm)[^\s"'<>)\]]*)/gi;
+var MAX_HTML = 5e6;
+
+var K = { s:"kl4.set", st:"kl4.stats", h:"kl4.hist", p:"kl4.proxy", r:"kl4.reader" };
+function readLS(k, d){ try { var v = JSON.parse(localStorage.getItem(k)); return v === null ? d : v; } catch(e){ return d; } }
+function writeLS(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+var S = {}, stats = readLS(K.st, {}), ph = readLS(K.p, {}), rh = readLS(K.r, {}), hist = readLS(K.h, []);
+
+function loadSettings(){
+  var saved = readLS(K.s, {});
+  S = {};
+  for (var k in DEFAULTS) S[k] = DEFAULTS[k];
+  for (var k2 in saved) if (saved.hasOwnProperty(k2)) S[k2] = saved[k2];
+  if (!Array.isArray(S.readers) || !S.readers.length) S.readers = DEFAULTS.readers.slice();
+  if (!Array.isArray(S.proxies) || !S.proxies.length) S.proxies = DEFAULTS.proxies.slice();
+  if (!Array.isArray(S.providers) || !S.providers.length) S.providers = JSON.parse(JSON.stringify(DEFAULTS.providers));
+}
+
+/* ---------- Mathe / Text ---------- */
+function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+function rnd(a,b){ return a + Math.random()*(b-a); }
+function norm(s){
+  return String(s).toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g," ").trim();
+}
+function lev(a,b){
+  if (a===b) return 0;
+  var m=a.length, n=b.length;
+  if (!m || !n) return m || n;
+  var prev=[], i, j;
+  for (j=0;j<=n;j++) prev[j]=j;
+  for (i=1;i<=m;i++){
+    var cur=[i];
+    for (j=1;j<=n;j++) cur[j] = Math.min(prev[j]+1, cur[j-1]+1, prev[j-1] + (a.charAt(i-1)===b.charAt(j-1)?0:1));
+    prev = cur;
+  }
+  return prev[n];
+}
+function bigram(a,b){
+  if (!a || !b) return 0;
+  if (a===b) return 1;
+  if (a.indexOf(b)!==-1 || b.indexOf(a)!==-1) return 0.88;
+  if (a.length<3 || b.length<3) return 0;
+  function set(s){ var o={}, i; for (i=0;i<s.length-1;i++) o[s.substr(i,2)]=1; return o; }
+  var A=set(a), B=set(b), hit=0, k;
+  for (k in A) if (B[k]) hit++;
+  var sizeA=0, sizeB=0;
+  for (k in A) sizeA++;
+  for (k in B) sizeB++;
+  return (2*hit)/(sizeA+sizeB);
+}
+function sim(a,b){
+  var x=norm(a), y=norm(b);
+  if (!x || !y) return 0;
+  var d=lev(x,y), tol=Math.max(1, Math.floor(Math.min(x.length,y.length)/4));
+  var base = d <= tol ? 1 - (d / Math.max(x.length,y.length)) * 0.5 : 0;
+  return Math.max(bigram(x,y), base);
+}
+function isHttp(u){ return /^https?:\/\//i.test(u); }
+function hostOf(u){ try { return new URL(u).hostname.replace(/^www\./,""); } catch(e){ return ""; } }
+function absUrl(base, href){ try { var u = new URL(href.replace(/&amp;/g,"&"), base); return isHttp(u.href) ? u.href : null; } catch(e){ return null; } }
+function yearOf(s){ var m = String(s).match(/(19[3-9]\d|20[0-4]\d)/); return m ? parseInt(m[1],10) : null; }
+function safeName(s){ return String(s).replace(/[:/\\<>"|?*]/g,"-").replace(/\s+/g," ").trim().slice(0,110) || "film"; }
+function matchHoster(u){ for (var i=0;i<HOSTERS.length;i++) if (HOSTERS[i].re.test(u)) return HOSTERS[i]; return null; }
+function statOf(p,h){ var e = stats[p+"|"+h]; if (!e || e.ok+e.fail < 3) return 1; return 0.5 + 0.5*(e.ok/(e.ok+e.fail)); }
+function statAdd(p,h,ok){
+  var k=p+"|"+h, e=stats[k] || {ok:0,fail:0};
+  if (ok) e.ok++; else e.fail++;
+  stats[k]=e; writeLS(K.st, stats);
+}
+function provResult(p, ok){
+  var k="P|"+p, e=stats[k] || {ok:0,fail:0};
+  if (ok) e.ok++; else e.fail++;
+  stats[k]=e; writeLS(K.st, stats);
+  for (var i=0;i<S.providers.length;i++){
+    var pr = S.providers[i];
+    if (pr.key === p){
+      pr.fails = ok ? 0 : (pr.fails||0)+1;
+      if (pr.fails >= 3 && pr.enabled) pr.enabled = false;
+      writeLS(K.s, S);
+    }
+  }
+}
+
+/* ---------- Netz ---------- */
+var cache = {};
+function ranked(arr, health){
+  var list = arr.map(function(tpl,i){ return {tpl:tpl, i:i}; });
+  list.sort(function(a,b){ return (health[b.i]||0) - (health[a.i]||0); });
+  return list;
+}
+function fetchOnce(url, tpl, timeout){
+  var target = tpl.replace("{url}", encodeURIComponent(url)).replace("{urlRaw}", url);
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ ctrl.abort(); }, timeout);
+  return fetch(target, { signal: ctrl.signal, cache: "no-store", redirect: "follow" }).then(function(res){
+    clearTimeout(timer);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.text();
+  }).then(function(text){
+    if (text.length > MAX_HTML) text = text.slice(0, MAX_HTML);
+    return text;
+  }).catch(function(e){
+    clearTimeout(timer);
+    throw e;
+  });
+}
+async function fetchPage(url, opt){
+  opt = opt || {};
+  if (!isHttp(url)) throw new Error("keine URL");
+  if (cache[url]) return cache[url];
+  var timeout = opt.timeout || 40000;
+  var tries = opt.tries || 2;
+  var last = "unbekannt";
+
+  for (var a=0; a<tries; a++){
+    var pro = ranked(S.proxies, ph);
+    for (var i=0; i<pro.length; i++){
+      try {
+        var text = await fetchOnce(url, pro[i].tpl, timeout);
+        if (text.length < 150) throw new Error("leer");
+        ph[pro[i].i] = (ph[pro[i].i]||0)+1; writeLS(K.p, ph);
+        var out = { text: text, mode: "html" };
+        cache[url] = out; return out;
+      } catch(e){
+        ph[pro[i].i] = (ph[pro[i].i]||0)-1; writeLS(K.p, ph);
+        last = e.name === "AbortError" ? "Timeout" : e.message;
+      }
+    }
+    if (!opt.wantHtml){
+      var rea = ranked(S.readers, rh);
+      for (var r=0; r<rea.length; r++){
+        try {
+          var text2 = await fetchOnce(url, rea[r].tpl, timeout);
+          if (text2.length < 150) throw new Error("leer");
+          rh[rea[r].i] = (rh[rea[r].i]||0)+1; writeLS(K.r, rh);
+          var out2 = { text: text2, mode: "md" };
+          cache[url] = out2; return out2;
+        } catch(e2){
+          rh[rea[r].i] = (rh[rea[r].i]||0)-1; writeLS(K.r, rh);
+          last = e2.name === "AbortError" ? "Timeout" : e2.message;
+        }
+      }
+    }
+    await sleep(rnd(700, 1400));
+  }
+  throw new Error("Netz: " + last);
+}
+function linksIn(text, base){
+  var seen = {}, out = [];
+  [RX_HTML, RX_MD].forEach(function(rx){
+    var r = new RegExp(rx.source, rx.flags), m;
+    while ((m = r.exec(text))){
+      var l = absUrl(base, m[1]);
+      if (l && !seen[l]){ seen[l] = 1; out.push(l.split("#")[0]); }
+    }
+  });
+  return out;
+}
+
+/* ---------- Jobs ---------- */
+var jobs = {};
+function newJob(query, kind){
+  var id = "j" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  jobs[id] = { id:id, query:query, kind:kind||"suche", state:"suche", progress:0, log:[], picks:null, file:null, error:null, cancelled:false, src:[], t0:Date.now(), eta:null, found:0 };
+  render(id);
+  return jobs[id];
+}
+function log(j, msg, lvl){
+  j.log.push({ l: lvl||"i", m: msg });
+  if (j.log.length > 300) j.log.shift();
+  render(j.id);
+}
+function set(j, patch){ for (var k in patch) if (patch.hasOwnProperty(k)) j[k] = patch[k]; render(j.id); }
+function stopped(j){
+  if (j.cancelled){ set(j, {state:"abgebrochen"}); log(j, "Abgebrochen", "w"); return true; }
+  return false;
+}
+function render(id){
+  var j = jobs[id], box = $("jobs");
+  if (!j || !box) return;
+  var el = $("job-"+id);
+  if (!el){ el = document.createElement("div"); el.className = "job"; el.id = "job-"+id; box.insertBefore(el, box.firstChild); }
+  var done = ["fertig","fehlgeschlagen","abgebrochen"].indexOf(j.state) !== -1;
+  var secs = Math.round((Date.now() - j.t0)/1000);
+  var left = j.eta ? Math.max(0, j.eta - secs) : null;
+  var html = '<div class="row"><strong>' + esc(j.query) + '</strong><span class="st">' + esc(j.state) + '</span></div>';
+  html += '<div class="bar"><i style="width:' + Math.min(100, j.progress||0) + '%"></i></div>';
+  html += '<div class="meta"><span>Laufzeit <b>' + secs + 's</b></span>';
+  if (left !== null) html += '<span>noch ca. <b>' + left + 's</b></span>';
+  html += '<span>Quellen <b>' + j.found + '</b></span></div>';
+  if (j.src.length){
+    html += '<div class="src">';
+    j.src.slice(-6).forEach(function(s){ html += '<div><span>' + esc(s.name) + '</span><span>' + esc(s.state) + '</span></div>'; });
+    html += '</div>';
+  }
+  if (j.picks){
+    html += '<div class="pick">';
+    j.picks.forEach(function(p, i){
+      html += '<button data-pick="' + id + ':' + i + '">' + esc(p.title) + (p.year ? ' (' + p.year + ')' : '') + '</button>';
+    });
+    html += '</div>';
+  }
+  if (j.file){
+    html += '<div class="acts">';
+    if (j.file.kind === "mp4") html += '<a href="' + esc(j.file.direct) + '" download="' + esc(j.file.name) + '">Herunterladen</a>';
+    html += '<button data-rec="' + id + '">Aufnehmen</button>';
+    html += '<a href="' + esc(j.file.direct) + '" target="_blank" rel="noopener">Im Player</a>';
+    html += '<button data-copy="' + esc(j.file.direct) + '">Kopieren</button></div>';
+    html += '<input class="urlin" readonly value="' + esc(j.file.direct) + '" onclick="this.select()">';
+  }
+  if (j.error) html += '<div class="log e">' + esc(j.error) + '</div>';
+  html += '<div class="log">' + j.log.slice(-40).map(function(x){ return '<span class="' + x.l + '">' + esc(x.m) + '</span>'; }).join("\n") + '</div>';
+  if (!done) html += '<div class="acts"><button class="ghost small" data-cancel="' + id + '">Abbrechen</button></div>';
+  el.innerHTML = html;
+}
+
+/* ---------- Ablauf ---------- */
+async function searchProvider(p, query, j){
+  var variants = [query];
+  var w = norm(query).split(" ").filter(Boolean);
+  if (w.length > 1){ variants.push(w.slice(0,2).join(" ")); variants.push(w[0]); }
+  var found = {};
+  var baseHost = hostOf(p.base);
+
+  for (var v=0; v<variants.length; v++){
+    var page;
+    try { page = await fetchPage(p.search.replace("{q}", encodeURIComponent(variants[v])), {timeout:40000}); }
+    catch(e){ log(j, p.name + ": " + e.message, "w"); continue; }
+
+    var links = linksIn(page.text, p.base);
+    for (var i=0; i<links.length; i++){
+      var link = links[i];
+      if (p.must && p.must !== "/" && link.indexOf(p.must) === -1) continue;
+      if (p.must === "/" && hostOf(link) !== baseHost) continue;
+      if (found[link]) continue;
+      var tail = decodeURIComponent((link.split("/").filter(Boolean).pop() || "").replace(/[-_]+/g," "));
+      var s = sim(query, tail);
+      if (s < S.threshold * 0.9) continue;
+      found[link] = { provider:p.key, providerName:p.name, page:link, title:tail, year:yearOf(tail) || yearOf(link), s:s };
+    }
+    if (Object.keys(found).length) break;
+  }
+  var arr = [];
+  for (var k in found) arr.push(found[k]);
+  arr.sort(function(a,b){ return b.s - a.s; });
+  return arr.slice(0, 6);
+}
+
+async function collectSources(hit, j){
+  var queue = [[hit.page, 0]], seen = {}, out = {}, order = [];
+  while (queue.length && Object.keys(seen).length < 10){
+    var item = queue.shift(), page = item[0], depth = item[1];
+    if (seen[page]) continue;
+    seen[page] = 1;
+    var res;
+    try { res = await fetchPage(page, {timeout:40000}); } catch(e){ continue; }
+
+    var links = linksIn(res.text, page);
+    for (var i=0; i<links.length; i++){
+      var link = links[i], h = matchHoster(link);
+      if (h && !out[link]){ out[link] = { provider:hit.provider, providerName:hit.providerName, page:hit.page, title:hit.title, year:hit.year, hoster:h.key, hosterName:h.name, url:link }; order.push(link); }
+      else if (/\.(mp4|webm)$/i.test(link) && !out[link]){ out[link] = { provider:hit.provider, providerName:hit.providerName, page:hit.page, title:hit.title, year:hit.year, hoster:"raw", hosterName:"Direkt", url:link }; order.push(link); }
+    }
+    if (depth < 1){
+      for (var k=0; k<links.length; k++){
+        if (hostOf(links[k]) === hostOf(page) && !seen[links[k]] && !/\.(jpg|png|gif|css|js|svg)$/i.test(links[k])) queue.push([links[k], depth+1]);
+      }
+    }
+  }
+  return order.map(function(l){ return out[l]; });
+}
+
+async function resolveSource(e){
+  if (e.hoster === "raw") return { url:e.url, kind: /\.m3u8/i.test(e.url) ? "hls" : "mp4" };
+  var page;
+  try { page = await fetchPage(e.url, {timeout:30000, wantHtml:true}); }
+  catch(err){ return { url:e.url, kind:"page" }; }
+  var t = page.text;
+  function grab(re){ var m = t.match(re); return m ? m[1].replace(/\\\//g,"/") : null; }
+  function clean(u){ return (u && u.indexOf("//") === 0) ? "https:" + u : u; }
+
+  if (e.hoster === "vidoza" || e.hoster === "luluvdo"){
+    var u = grab(/<source[^>]+src=["']([^"']+\.mp4[^"']*)["']/i);
+    if (u) return { url: clean(u), kind:"mp4" };
+  }
+  if (e.hoster === "streamtape"){
+    var id = grab(/get_video\?id=([^&"']+)/);
+    if (id){
+      var exp = grab(/[?&]expires=([^&"']+)/), tok = grab(/token=([^&"']+)/), ip = grab(/[?&]ip=([^&"']+)/);
+      return { url: "https://streamtape.com/get_video?id=" + id + (exp?"&expires="+exp:"") + (ip?"&ip="+ip:"") + (tok?"&token="+tok:""), kind:"mp4" };
+    }
+  }
+  var hls = clean(grab(/["']((?:https?:)?\/\/[^"']+\.m3u8[^"']*)["']/i));
+  if (hls) return { url:hls, kind:"hls" };
+  var mp4 = clean(grab(/["']((?:https?:)?\/\/[^"']+\.mp4[^"']*)["']/i));
+  if (mp4) return { url:mp4, kind:"mp4" };
+  var bare = t.match(RX_BARE);
+  if (bare) return { url: clean(bare[0]), kind: /\.m3u8/i.test(bare[0]) ? "hls" : "mp4" };
+  return { url:e.url, kind:"page" };
+}
+
+async function verifyStream(r){
+  if (r.kind === "page") return true;
+  if (r.kind === "hls"){
+    var pl = (await fetchPage(r.url, {timeout:25000, wantHtml:true})).text;
+    if (pl.indexOf("#EXTM3U") !== 0) throw new Error("keine Playlist");
+    if ((pl.match(/#EXTINF/g) || []).length < 3) throw new Error("zu wenige Segmente");
+    return true;
+  }
+  var res = await fetch(r.url, {cache:"no-store"});
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  var ct = (res.headers.get("content-type") || "").toLowerCase();
+  if (ct.indexOf("text/html") !== -1) throw new Error("HTML statt Video");
+  return true;
+}
+
+async function runSearch(j){
+  var provs = S.providers.filter(function(p){ return p.enabled && p.search && p.must; });
+  try {
+    if (!provs.length) throw new Error("Kein Portal aktiv – Diagnose starten");
+    j.eta = provs.length * Math.ceil(S.budget / Math.max(1, S.parallel));
+    j.src = provs.map(function(p){ return { name:p.name, state:"wartet" }; });
+    log(j, 'Suche „' + j.query + '" auf ' + provs.length + ' Portalen');
+    set(j, {progress:4});
+
+    var hits = [], i = 0;
+    async function worker(){
+      while (i < provs.length){
+        var p = provs[i++];
+        var row = null;
+        j.src.forEach(function(s){ if (s.name === p.name) row = s; });
+        if (row){ row.state = "sucht…"; render(j.id); }
+        try {
+          var r = await searchProvider(p, j.query, j);
+          hits = hits.concat(r);
+          if (row) row.state = r.length ? r.length + " Treffer" : "nichts";
+          provResult(p.key, r.length > 0);
+        } catch(e){
+          if (row) row.state = "Fehler";
+          log(j, p.name + ": " + e.message, "w");
+          provResult(p.key, false);
+        }
+        set(j, {progress: 4 + Math.round(46 * (i / provs.length))});
+      }
+    }
+    var runners = [];
+    for (var w=0; w<Math.min(S.parallel, provs.length); w++) runners.push(worker());
+    await Promise.all(runners);
+
+    if (stopped(j)) return;
+    if (!hits.length) throw new Error("Kein Treffer auf keinem Portal");
+    var uniq = [], seen = {};
+    hits.forEach(function(h){ if (!seen[h.page]){ seen[h.page] = 1; uniq.push(h); } });
+    log(j, uniq.length + " Titeltreffer");
+    if (uniq.length === 1 || uniq[0].s >= 0.95) return runHit(j, uniq[0]);
+    set(j, {state:"auswahl", picks:uniq, progress:52, eta:null});
+    log(j, "Titel bestätigen");
+  } catch(e){
+    set(j, {state:"fehlgeschlagen", error:e.message});
+    log(j, e.message, "e");
+  } finally {
+    if ($("go")) $("go").disabled = false;
+  }
+}
+
+async function runHit(j, hit){
+  try {
+    set(j, {state:"sammle", progress:55});
+    var list = await collectSources(hit, j);
+    if (!list.length) throw new Error("Keine Quelle gefunden");
+    list.sort(function(a,b){
+      var ha = matchHoster(a.url), hb = matchHoster(b.url);
+      return ((hb?hb.score:30) * statOf(hit.provider, b.hoster)) - ((ha?ha.score:30) * statOf(hit.provider, a.hoster));
+    });
+    var per = {};
+    list = list.filter(function(x){ per[x.hoster] = (per[x.hoster]||0)+1; return per[x.hoster] <= 3; }).slice(0, S.maxAttempts);
+    j.found = list.length;
+    log(j, list.length + " Quellen, prüfe…");
+    set(j, {progress:62, eta:list.length * 4});
+
+    for (var i=0; i<list.length; i++){
+      if (stopped(j)) return;
+      var e = list[i];
+      try {
+        var r = await resolveSource(e);
+        await verifyStream(r);
+        if (stopped(j)) return;
+        var name = safeName(hit.title + (hit.year ? " (" + hit.year + ")" : "")) + (r.kind === "mp4" ? ".mp4" : ".m3u8");
+        set(j, {state:"fertig", progress:100, eta:null, file:{ name:name, direct:r.url, kind:r.kind }});
+        log(j, "OK über " + e.hosterName + (r.kind !== "mp4" ? " – Stream, „Aufnehmen" nutzen" : ""));
+        statAdd(hit.provider, e.hoster, true);
+        provResult(hit.provider, true);
+        remember(hit, e, r);
+        return;
+      } catch(err){
+        statAdd(hit.provider, e.hoster, false);
+        log(j, e.hosterName + ": " + err.message, "w");
+        await sleep(rnd(600,1400));
+      }
+    }
+    throw new Error("Alle Quellen ausgeschöpft");
+  } catch(e){
+    set(j, {state:"fehlgeschlagen", error:e.message});
+    log(j, e.message, "e");
+  } finally {
+    if ($("go")) $("go").disabled = false;
+  }
+}
+
+async function runPage(j){
+  try {
+    var url = j.query.trim();
+    if (!isHttp(url)) throw new Error("keine URL");
+    log(j, "Werte Seite aus");
+    var tail = decodeURIComponent((url.split("/").filter(Boolean).pop() || "film").replace(/[-_]+/g," "));
+    return runHit(j, { provider:"extern", providerName:"Extern", page:url, title:tail, year:yearOf(url) });
+  } catch(e){
+    set(j, {state:"fehlgeschlagen", error:e.message});
+    log(j, e.message, "e");
+  } finally {
+    if ($("go")) $("go").disabled = false;
+  }
+}
+
+async function runRaw(j){
+  try {
+    var url = j.query.trim();
+    if (!isHttp(url)) throw new Error("keine URL");
+    var kind = /\.m3u8/i.test(url) ? "hls" : "mp4";
+    await verifyStream({ url:url, kind:kind });
+    set(j, {state:"fertig", progress:100, file:{ name:safeName(url.split("/").pop() || "video"), direct:url, kind:kind }});
+    log(j, "Direktlink in Ordnung");
+  } catch(e){
+    set(j, {state:"fehlgeschlagen", error:e.message});
+    log(j, e.message, "e");
+  } finally {
+    if ($("go")) $("go").disabled = false;
+  }
+}
+
+/* ---------- Aufnahme ---------- */
+var rec = null;
+function pickMime(){
+  var list = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4","video/webm;codecs=vp9,opus","video/webm"];
+  for (var i=0;i<list.length;i++){ try { if (MediaRecorder.isTypeSupported(list[i])) return list[i]; } catch(e){} }
+  return "";
+}
+async function startRec(j){
+  if (rec) return;
+  var v = $("recvideo");
+  $("recbox").className = "";
+  $("recmsg").textContent = "Lade Stream…";
+  rec = { chunks: [] };
+  function load(cross){
+    return new Promise(function(res, rej){
+      v.crossOrigin = cross ? "anonymous" : null;
+      v.src = j.file.direct;
+      var t = setTimeout(function(){ rej(new Error("Timeout")); }, 25000);
+      v.onloadedmetadata = function(){ clearTimeout(t); res(); };
+      v.onerror = function(){ clearTimeout(t); rej(new Error("Ladefehler")); };
+    });
+  }
+  try { try { await load(true); } catch(e){ await load(false); } }
+  catch(e){ $("recmsg").textContent = "Stream lädt nicht: " + e.message; return; }
+
+  var stream = v.captureStream ? v.captureStream() : v.mozCaptureStream();
+  if (!stream){ $("recmsg").textContent = "Aufnahme nicht unterstützt – „Im Player" nutzen."; return; }
+  var mime = pickMime(), mr;
+  try { mr = new MediaRecorder(stream, mime ? {mimeType:mime, videoBitsPerSecond:6e6} : undefined); }
+  catch(e){ $("recmsg").textContent = "Recorder-Fehler: " + e.message; return; }
+
+  mr.ondataavailable = function(ev){ if (ev.data && ev.data.size) rec.chunks.push(ev.data); };
+  mr.onstop = function(){
+    var type = mime || "video/webm";
+    var blob = new Blob(rec.chunks, {type:type});
+    var ext = type.indexOf("mp4") !== -1 ? "mp4" : "webm";
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = safeName(j.query) + "." + ext;
+    a.textContent = "Aufnahme speichern (" + ext + ", " + Math.round(blob.size/1048576) + " MB)";
+    a.style.cssText = "display:block;margin-top:8px;color:#3ddc84;font-weight:700";
+    $("recbar").appendChild(a);
+    $("recmsg").textContent = "Fertig.";
+    v.pause();
+  };
+  rec.mr = mr;
+  v.muted = false;
+  try { v.playbackRate = Math.max(1, Math.min(4, S.rate || 1)); } catch(e){}
+  try { await v.play(); } catch(e){}
+  mr.start(1000);
+  $("recmsg").textContent = "Aufnahme läuft (" + (S.rate||1) + "×). Display an lassen.";
+}
+function stopRec(){ if (!rec) return; try { rec.mr.stop(); } catch(e){} rec.mr = null; }
+
+/* ---------- Verlauf / Diagnose / Einstellungen ---------- */
+function remember(hit, e, r){
+  hist.unshift({ title:hit.title, year:hit.year, url:r.url, kind:r.kind, hoster:e.hosterName, provider:hit.providerName });
+  hist = hist.slice(0,60);
+  writeLS(K.h, hist);
+  drawHistory();
+}
+function drawHistory(){
+  var box = $("history");
+  if (!box) return;
+  if (!hist.length){ box.innerHTML = '<p class="muted">noch nichts geladen</p>'; return; }
+  var html = "";
+  hist.forEach(function(h){
+    html += '<div class="card"><div class="row"><strong>' + esc(h.title) + '</strong><span class="tag">' + esc(h.hoster||"") + '</span></div><div class="acts">';
+    if (h.kind === "mp4") html += '<a href="' + esc(h.url) + '" download="' + esc(safeName(h.title)) + '.mp4">Laden</a>';
+    html += '<a href="' + esc(h.url) + '" target="_blank" rel="noopener">Player</a>';
+    html += '<button data-copy="' + esc(h.url) + '">Kopieren</button></div></div>';
+  });
+  box.innerHTML = html;
+}
+
+function drawLearn(){
+  var box = $("learnOut");
+  if (!box) return;
+  var keys = Object.keys(stats).filter(function(k){ return stats[k].ok + stats[k].fail >= 2; });
+  keys.sort(function(a,b){ return (stats[b].ok+stats[b].fail) - (stats[a].ok+stats[a].fail); });
+  keys = keys.slice(0, 40);
+  if (!keys.length){ box.innerHTML = '<p class="muted">noch keine Daten</p>'; return; }
+  var html = "<table>";
+  keys.forEach(function(k){
+    var v = stats[k], q = v.ok / (v.ok + v.fail);
+    html += "<tr><td>" + esc(k.replace("|"," / ")) + '</td><td><span class="tag ' + (q >= 0.5 ? "ok" : "bad") + '">' + Math.round(q*100) + '%</span></td></tr>';
+  });
+  box.innerHTML = html + "</table>";
+}
+
+function drawSettings(){
+  if (!$("s_budget")) return;
+  $("s_budget").value = S.budget;
+  $("s_parallel").value = S.parallel;
+  $("s_maxAttempts").value = S.maxAttempts;
+  $("s_minBytes").value = S.minBytes;
+  $("s_threshold").value = S.threshold;
+  $("s_rate").value = String(S.rate || 1);
+  $("s_readers").value = S.readers.join("\n");
+  $("s_proxies").value = S.proxies.join("\n");
+  var html = "";
+  S.providers.forEach(function(p, i){
+    html += '<div class="row" style="padding:6px 0;border-bottom:1px solid var(--l)"><span>' + esc(p.name) + '</span>';
+    html += '<span class="tag ' + (p.enabled ? "ok" : "bad") + '">' + (p.enabled ? "an" : "aus") + '</span>';
+    html += '<button class="ghost small" data-toggle="' + i + '">' + (p.enabled ? "aus" : "an") + '</button>';
+    html += '<button class="ghost small" data-del="' + i + '">×</button></div>';
+  });
+  $("provList").innerHTML = html;
+}
+
+async function diagnose(){
+  var out = $("diagOut");
+  if (!out) return;
+  out.innerHTML = "";
+  $("diagRun").disabled = true;
+  function add(txt, cls){
+    var d = document.createElement("div");
+    d.className = "muted";
+    d.innerHTML = '<span class="tag ' + (cls||"") + '">' + esc(txt) + '</span>';
+    out.appendChild(d);
+  }
+
+  for (var i=0;i<S.readers.length;i++){
+    try {
+      var t = await fetchOnce("https://filmpalast.to/", S.readers[i].tpl, 45000);
+      var ok = t.length > 500;
+      add("Reader " + (i+1) + ": " + (ok ? "ok" : "leer"), ok ? "ok" : "bad");
+      rh[i] = (rh[i]||0) + (ok ? 3 : -3);
+    } catch(e){ add("Reader " + (i+1) + ": " + e.message, "bad"); rh[i] = (rh[i]||0) - 3; }
+  }
+  writeLS(K.r, rh);
+
+  for (var p=0;p<S.proxies.length;p++){
+    try {
+      var t2 = await fetchOnce("https://example.com", S.proxies[p].tpl, 15000);
+      var ok2 = t2.indexOf("Example") !== -1;
+      add("Proxy " + (p+1) + ": " + (ok2 ? "ok" : "falscher Inhalt"), ok2 ? "ok" : "bad");
+      ph[p] = (ph[p]||0) + (ok2 ? 3 : -3);
+    } catch(e2){ add("Proxy " + (p+1) + ": " + e2.message, "bad"); ph[p] = (ph[p]||0) - 3; }
+  }
+  writeLS(K.p, ph);
+
+  for (var q=0;q<S.providers.length;q++){
+    var pr = S.providers[q];
+    try {
+      var hits = await searchProvider(pr, "Inception", {log:[]});
+      add(pr.name + ": " + hits.length + " Treffer", hits.length ? "ok" : "bad");
+      if (hits.length){ pr.enabled = true; pr.fails = 0; }
+      provResult(pr.key, hits.length > 0);
+    } catch(e3){ add(pr.name + ": " + e3.message, "bad"); provResult(pr.key, false); }
+  }
+  writeLS(K.s, S);
+  drawLearn();
+  drawSettings();
+  $("diagRun").disabled = false;
+  setStatus("Diagnose fertig");
+}
+
+/* ---------- Start ---------- */
+function boot(){
+  $("ver").textContent = "v" + VERSION;
+  loadSettings();
+
+  safe("Navigation", function(){
+    function mark(){
+      var h = (location.hash || "#suche").slice(1);
+      document.querySelectorAll("[data-nav]").forEach(function(a){ a.className = a.dataset.nav === h ? "on" : ""; });
+      if (h === "verlauf") drawHistory();
+      if (h === "diagnose") drawLearn();
+      if (h === "einstellungen") drawSettings();
+    }
+    window.addEventListener("hashchange", mark);
+    mark();
+  });
+
+  safe("Formular", function(){
+    $("form").addEventListener("submit", function(ev){
+      ev.preventDefault();
+      var q = $("q").value.trim();
+      if (!q) return;
+      $("q").value = "";
+      $("go").disabled = true;
+      runSearch(newJob(q));
+    });
+  });
+
+  safe("Seiten-Buttons", function(){
+    $("anyGo").addEventListener("click", function(){
+      var u = $("anyUrl").value.trim();
+      if (!u) return;
+      $("anyUrl").value = "";
+      runPage(newJob(u));
+    });
+    $("rawGo").addEventListener("click", function(){
+      var u = $("rawUrl").value.trim();
+      if (!u) return;
+      $("rawUrl").value = "";
+      runRaw(newJob(u));
+    });
+    $("recStop").addEventListener("click", stopRec);
+    $("diagRun").addEventListener("click", diagnose);
+    $("resetLearn").addEventListener("click", function(){ stats = {}; writeLS(K.st, stats); drawLearn(); setStatus("gelöscht"); });
+  });
+
+  safe("Einstellungen", function(){
+    $("save").addEventListener("click", function(){
+      S.budget = Math.min(180, Math.max(10, +$("s_budget").value || 45));
+      S.parallel = Math.min(5, Math.max(1, +$("s_parallel").value || 3));
+      S.maxAttempts = Math.min(200, Math.max(5, +$("s_maxAttempts").value || 40));
+      S.minBytes = Math.max(50, +$("s_minBytes").value || 400);
+      S.threshold = Math.min(0.9, Math.max(0.3, +$("s_threshold").value || 0.5));
+      S.rate = +$("s_rate").value || 1;
+      var rd = $("s_readers").value.split("\n").map(function(x){ return x.trim(); }).filter(function(x){ return isHttp(x.replace("{url}","x")); });
+      if (rd.length) S.readers = rd;
+      var px = $("s_proxies").value.split("\n").map(function(x){ return x.trim(); }).filter(function(x){ return isHttp(x.replace("{url}","x")); });
+      if (px.length) S.proxies = px;
+      writeLS(K.s, S);
+      drawSettings();
+      setStatus("gespeichert");
+    });
+    $("provList").addEventListener("click", function(ev){
+      var t = ev.target.closest("[data-toggle]"), d = ev.target.closest("[data-del]");
+      if (t){ S.providers[+t.dataset.toggle].enabled = !S.providers[+t.dataset.toggle].enabled; writeLS(K.s, S); drawSettings(); }
+      if (d){ S.providers.splice(+d.dataset.del, 1); writeLS(K.s, S); drawSettings(); }
+    });
+    $("np_add").addEventListener("click", function(){
+      var n = $("np_name").value.trim(), b = $("np_base").value.trim(), s = $("np_search").value.trim(), m = $("np_must").value.trim();
+      if (!n || !isHttp(b) || s.indexOf("{q}") === -1 || !m){ setStatus("Angaben fehlen", true); return; }
+      S.providers.push({ key:n.toLowerCase().replace(/\W+/g,""), name:n, base:b, search:s, must:m, enabled:true, fails:0 });
+      writeLS(K.s, S);
+      $("np_name").value = $("np_base").value = $("np_search").value = $("np_must").value = "";
+      drawSettings();
+      setStatus("Portal ergänzt");
+    });
+  });
+
+  safe("Klicks", function(){
+    document.addEventListener("click", function(ev){
+      var c = ev.target.closest("[data-cancel]");
+      if (c){ var j1 = jobs[c.dataset.cancel]; if (j1) j1.cancelled = true; }
+      var cp = ev.target.closest("[data-copy]");
+      if (cp && navigator.clipboard) navigator.clipboard.writeText(cp.dataset.copy).then(function(){ cp.textContent = "kopiert"; }).catch(function(){});
+      var rc = ev.target.closest("[data-rec]");
+      if (rc){ var j2 = jobs[rc.dataset.rec]; if (j2 && j2.file) startRec(j2); }
+      var pk = ev.target.closest("[data-pick]");
+      if (pk){
+        var parts = pk.dataset.pick.split(":");
+        var j3 = jobs[parts[0]];
+        if (!j3) return;
+        var hit = j3.picks[parseInt(parts[1],10)];
+        j3.picks = null;
+        render(j3.id);
+        runHit(j3, hit);
+      }
+    });
+  });
+
+  safe("Takt", function(){
+    setInterval(function(){
+      for (var id in jobs) if (["fertig","fehlgeschlagen","abgebrochen"].indexOf(jobs[id].state) === -1) render(id);
+    }, 1000);
+  });
+
+  drawSettings();
+  drawHistory();
+  setStatus("bereit");
+}
+boot();
+</script>
+</body>
+</html>
