@@ -1,0 +1,3422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b09">
+<meta name="description" content="Kinolotse 12 – Suchagent mit Selbsttest, Player und Downloadverwaltung">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Kinolotse 12</title>
+<style>
+:root{
+  --bg:#070b09;
+  --bg2:#0d1410;
+  --bg3:#121b16;
+  --bg4:#18241d;
+  --line:#1e2b23;
+  --line2:#2b3d32;
+  --line3:#3a5142;
+  --fg:#e6f2ea;
+  --fg2:#9db3a7;
+  --fg3:#6d8478;
+  --acc:#25d07a;
+  --acc2:#1cb96c;
+  --warn:#e0b23c;
+  --err:#e2604f;
+  --rad:12px;
+  --rad2:8px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+html,body{
+  margin:0;
+  padding:0;
+}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  min-height:100vh;
+  overflow-x:hidden;
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding-bottom:240px;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4{
+  margin:0 0 .5em;
+  line-height:1.25;
+  font-weight:650;
+}
+h1{font-size:1.5rem}
+h2{font-size:1.12rem}
+h3{
+  font-size:.9rem;
+  color:var(--fg2);
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  font-weight:600;
+}
+h4{
+  font-size:.85rem;
+  color:var(--fg2);
+  margin-bottom:.4em;
+}
+p{margin:0 0 .8em}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{
+  font-family:var(--mono);
+  font-size:.85em;
+  background:var(--bg3);
+  padding:1px 5px;
+  border-radius:5px;
+  border:1px solid var(--line);
+}
+hr{
+  border:0;
+  border-top:1px solid var(--line);
+  margin:16px 0;
+}
+header{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:#070b09f2;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:12px 14px 0;
+}
+.kopf{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+.logo{
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  color:#04140c;
+  font-size:15px;
+  background:radial-gradient(circle at 30% 25%,#2ee98b,#0d7a47 70%);
+  box-shadow:0 0 0 1px #2ee98b40;
+}
+.kopf h1{
+  font-size:1.05rem;
+  margin:0;
+}
+.kopf .ver{
+  margin-left:auto;
+  font-family:var(--mono);
+  font-size:.68rem;
+  color:var(--fg3);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:2px 6px;
+}
+nav{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  flex:0 0 auto;
+  background:var(--bg2);
+  color:var(--fg2);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:7px 13px;
+  font-size:.82rem;
+  font-weight:550;
+  cursor:pointer;
+  white-space:nowrap;
+  font-family:inherit;
+  transition:background .15s,color .15s;
+}
+nav button.active{
+  background:var(--acc);
+  color:#04140c;
+  border-color:var(--acc);
+}
+nav button:active{transform:scale(.96)}
+main{
+  padding:16px 14px 0;
+  max-width:860px;
+  margin:0 auto;
+}
+.page{display:none}
+.page.on{
+  display:block;
+  animation:ein .18s ease;
+}
+@keyframes ein{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:none}
+}
+.feld{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+input[type=text],
+input[type=password],
+input[type=number],
+input[type=url],
+select,
+textarea{
+  width:100%;
+  background:var(--bg2);
+  color:var(--fg);
+  border:1px solid var(--line2);
+  border-radius:10px;
+  padding:11px 12px;
+  font-size:.95rem;
+  font-family:inherit;
+}
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+  border-color:var(--acc);
+  box-shadow:0 0 0 3px #25d07a1f;
+}
+textarea{
+  resize:vertical;
+  min-height:90px;
+  font-family:var(--mono);
+  font-size:.78rem;
+}
+label.zeile{
+  display:block;
+  margin-bottom:12px;
+}
+label.zeile>span{
+  display:block;
+  font-size:.78rem;
+  color:var(--fg2);
+  margin-bottom:5px;
+  font-weight:550;
+}
+button.btn{
+  background:var(--acc);
+  color:#04140c;
+  border:0;
+  border-radius:10px;
+  padding:11px 16px;
+  font-size:.9rem;
+  font-weight:650;
+  cursor:pointer;
+  font-family:inherit;
+  transition:transform .12s,opacity .12s;
+}
+button.btn:active{transform:scale(.97)}
+button.btn[disabled]{
+  opacity:.5;
+  cursor:default;
+  transform:none;
+}
+button.btn.ghost{
+  background:var(--bg2);
+  color:var(--fg);
+  border:1px solid var(--line2);
+}
+button.btn.rot{
+  background:var(--err);
+  color:#1a0603;
+}
+button.btn.klein{
+  padding:6px 10px;
+  font-size:.78rem;
+  border-radius:8px;
+}
+.karte{
+  background:var(--bg2);
+  border:1px solid var(--line);
+  border-radius:var(--rad);
+  padding:13px;
+  margin-bottom:10px;
+}
+.karte .t b{
+  display:block;
+  font-size:.98rem;
+  font-weight:600;
+  word-break:break-word;
+}
+.karte .meta{
+  font-size:.75rem;
+  color:var(--fg3);
+  margin-top:3px;
+  font-family:var(--mono);
+}
+.pille{
+  display:inline-block;
+  font-size:.7rem;
+  font-family:var(--mono);
+  padding:2px 7px;
+  border-radius:999px;
+  border:1px solid var(--line2);
+  color:var(--fg2);
+  margin-right:5px;
+}
+.pille.gut{
+  color:var(--acc);
+  border-color:#25d07a55;
+  background:#25d07a12;
+}
+.pille.mittel{
+  color:var(--warn);
+  border-color:#e0b23c55;
+  background:#e0b23c12;
+}
+.pille.schlecht{
+  color:var(--err);
+  border-color:#e2604f55;
+  background:#e2604f12;
+}
+.hoster{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:9px;
+}
+.hoster a,
+.hoster span.lnk{
+  font-size:.78rem;
+  padding:7px 11px;
+  border-radius:var(--rad2);
+  background:var(--bg3);
+  border:1px solid var(--line2);
+  color:var(--fg);
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  cursor:pointer;
+}
+.hoster a b{color:var(--acc);font-weight:600}
+.hoster a.mp4{
+  border-color:var(--acc);
+  background:#25d07a18;
+  color:#c8f7dd;
+}
+.leer{
+  text-align:center;
+  color:var(--fg3);
+  padding:26px 12px;
+  font-size:.88rem;
+}
+#banner{
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:.8rem;
+  margin-bottom:14px;
+  border:1px solid var(--line2);
+  background:var(--bg2);
+  color:var(--fg2);
+  font-family:var(--mono);
+  line-height:1.5;
+}
+#banner.gut{
+  border-color:#25d07a55;
+  background:#25d07a0e;
+  color:#a9f2cb;
+}
+#banner.schlecht{
+  border-color:#e2604f55;
+  background:#e2604f0e;
+  color:#f6b6ac;
+}
+#banner.warn{
+  border-color:#e0b23c55;
+  background:#e0b23c0e;
+  color:#f0d59a;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.78rem;
+  font-family:var(--mono);
+}
+th,td{
+  text-align:left;
+  padding:6px 5px;
+  border-bottom:1px solid var(--line);
+}
+th{
+  color:var(--fg3);
+  font-weight:600;
+  font-size:.7rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+td.w{
+  color:var(--fg2);
+  word-break:break-word;
+}
+footer{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:45;
+  background:#060a08f5;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.kopfkonsole{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 12px;
+  border-bottom:1px solid var(--line);
+  font-size:.72rem;
+  font-family:var(--mono);
+  color:var(--fg3);
+}
+.kopfkonsole .p{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.kopfkonsole .p i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--acc);
+  display:inline-block;
+}
+.kopfkonsole .p.b i{background:var(--err)}
+.kopfkonsole button{
+  margin-left:auto;
+  background:none;
+  border:1px solid var(--line2);
+  color:var(--fg3);
+  border-radius:6px;
+  padding:2px 8px;
+  font-size:.7rem;
+  cursor:pointer;
+  font-family:var(--mono);
+}
+#konsole{
+  height:130px;
+  overflow-y:auto;
+  padding:6px 12px;
+  font-family:var(--mono);
+  font-size:.72rem;
+  line-height:1.5;
+}
+#konsole .z{
+  display:flex;
+  gap:7px;
+  padding:1px 0;
+  word-break:break-word;
+}
+#konsole .z time{
+  color:var(--fg3);
+  flex:0 0 auto;
+}
+#konsole .z.i{color:var(--fg2)}
+#konsole .z.o{color:var(--acc)}
+#konsole .z.w{color:var(--warn)}
+#konsole .z.e{color:var(--err)}
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:200px;
+  transform:translate(-50%,20px);
+  background:#e6f2ea;
+  color:#070b09;
+  font-size:.82rem;
+  font-weight:600;
+  padding:10px 16px;
+  border-radius:999px;
+  z-index:60;
+  opacity:0;
+  pointer-events:none;
+  transition:.22s;
+  max-width:88vw;
+  text-align:center;
+}
+#toast.on{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+.hinweis{
+  font-size:.78rem;
+  color:var(--fg3);
+  line-height:1.5;
+}
+.reihe{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.reihe button{flex:1 1 auto}
+.box{
+  background:var(--bg2);
+  border:1px solid var(--line);
+  border-radius:var(--rad);
+  padding:13px;
+  margin-bottom:12px;
+}
+.trenner{
+  height:1px;
+  background:var(--line);
+  margin:14px 0;
+}
+.balken{
+  height:8px;
+  background:var(--bg3);
+  border:1px solid var(--line);
+  border-radius:999px;
+  overflow:hidden;
+  margin:8px 0;
+}
+.balken i{
+  display:block;
+  height:100%;
+  width:0;
+  background:var(--acc);
+  transition:width .12s;
+}
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:12px;
+}
+.chips button{
+  font-size:.76rem;
+  padding:5px 10px;
+  border-radius:999px;
+  background:var(--bg3);
+  border:1px solid var(--line2);
+  color:var(--fg2);
+  cursor:pointer;
+  font-family:inherit;
+}
+.chips button.an{
+  background:var(--acc);
+  color:#04140c;
+  border-color:var(--acc);
+}
+video{
+  width:100%;
+  border-radius:10px;
+  background:#000;
+  border:1px solid var(--line2);
+  aspect-ratio:16/9;
+}
+.kpi{
+  background:var(--bg2);
+  border:1px solid var(--line);
+  border-radius:var(--rad);
+  padding:12px;
+  margin-bottom:10px;
+}
+.kpi b{
+  font-family:var(--mono);
+  color:var(--acc);
+  font-size:1.4rem;
+  display:block;
+}
+.kpi small{
+  color:var(--fg3);
+  font-size:.72rem;
+  font-family:var(--mono);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kopf">
+    <div class="logo">K</div>
+    <h1>Kinolotse</h1>
+    <span class="ver" id="ver">12</span>
+  </div>
+  <nav id="nav">
+    <button data-page="suche" class="active">Suche</button>
+    <button data-page="player">Player</button>
+    <button data-page="download">Downloads</button>
+    <button data-page="watchlist">Watchlist</button>
+    <button data-page="verlauf">Verlauf</button>
+    <button data-page="statistik">Statistik</button>
+    <button data-page="diagnose">Diagnose</button>
+    <button data-page="einstellungen">Einstellungen</button>
+    <button data-page="info">Info</button>
+  </nav>
+</header>
+
+<main id="haupt"></main>
+
+<footer>
+  <div class="kopfkonsole">
+    <span class="p"><i></i>Agent</span>
+    <span id="status">bereit</span>
+    <span id="zaehler" style="color:var(--fg3)">0 Treffer</span>
+    <button id="konsole-leeren">leeren</button>
+  </div>
+  <div id="konsole"></div>
+</footer>
+
+<div id="toast"></div>
+
+<noscript>
+  <div style="padding:16px">
+    JavaScript ist deaktiviert. Ohne JavaScript läuft die App nicht.
+  </div>
+</noscript>
+
+<template data-page="suche">
+  <div id="banner">Starte den Selbsttest …</div>
+  <div class="feld">
+    <input type="text" id="q" placeholder="Titel, z. B. Inception" autocomplete="off" enterkeyhint="search">
+    <button class="btn" id="start">Suchen</button>
+  </div>
+  <div class="chips" id="vorschlaege"></div>
+  <div class="reihe">
+    <button class="btn ghost klein" id="jahr-weg">Jahr entfernen</button>
+    <button class="btn ghost klein" id="abbrechen" disabled>Abbrechen</button>
+  </div>
+  <div class="chips" id="genre-filter"></div>
+  <div class="feld">
+    <select id="sortierung">
+      <option value="score">Sortierung: Relevanz</option>
+      <option value="titel">Sortierung: Titel A–Z</option>
+      <option value="titel2">Sortierung: Titel Z–A</option>
+      <option value="jahr">Sortierung: Jahr</option>
+      <option value="portal">Sortierung: Quelle</option>
+    </select>
+  </div>
+  <div class="trenner"></div>
+  <div id="treffer">
+    <div class="leer">Noch keine Suche.</div>
+  </div>
+</template>
+
+<template data-page="player">
+  <h2>Player</h2>
+  <p class="hinweis">
+    MP4- und HLS-Links direkt abspielen. Über Teilen → „In Dateien sichern“ landet die Datei auf dem iPhone.
+  </p>
+  <div class="feld">
+    <input type="url" id="p-url" placeholder="https://…/video.mp4">
+    <button class="btn" id="p-start">Abspielen</button>
+  </div>
+  <video id="p-video" controls playsinline preload="metadata"></video>
+  <div class="reihe" style="margin-top:10px">
+    <button class="btn ghost klein" id="p-download">In Downloadliste</button>
+    <button class="btn ghost klein" id="p-kopie">Link kopieren</button>
+    <button class="btn ghost klein" id="p-stop">Stoppen</button>
+  </div>
+  <div id="p-status" class="hinweis">Kein Medium geladen.</div>
+</template>
+
+<template data-page="download">
+  <h2>Downloads</h2>
+  <p class="hinweis">
+    „Datei speichern“ ist ein echter Link — Safari lädt direkt in „Dateien“. Klappt es nicht, im Player öffnen und über Teilen sichern.
+  </p>
+  <div class="reihe">
+    <button class="btn ghost klein" id="dl-leeren">Liste leeren</button>
+    <button class="btn ghost klein" id="dl-export">Als JSON exportieren</button>
+  </div>
+  <div id="dl-liste">
+    <div class="leer">Keine Dateien.</div>
+  </div>
+</template>
+
+<template data-page="watchlist">
+  <h2>Watchlist</h2>
+  <p class="hinweis">
+    Gespeicherte Titel. „Alle prüfen“ startet für jeden Eintrag eine Suche.
+  </p>
+  <div class="feld">
+    <input type="text" id="wl-ein" placeholder="Titel hinzufügen" autocomplete="off">
+    <button class="btn" id="wl-add">Hinzufügen</button>
+  </div>
+  <div class="reihe">
+    <button class="btn ghost klein" id="wl-alle">Alle prüfen</button>
+    <button class="btn ghost klein" id="wl-leeren">Leeren</button>
+  </div>
+  <div id="wl-liste">
+    <div class="leer">Watchlist ist leer.</div>
+  </div>
+</template>
+
+<template data-page="verlauf">
+  <h2>Verlauf</h2>
+  <div class="reihe">
+    <button class="btn ghost klein" id="vh-leeren">Verlauf löschen</button>
+  </div>
+  <div id="vh-liste">
+    <div class="leer">Kein Verlauf.</div>
+  </div>
+</template>
+
+<template data-page="statistik">
+  <h2>Statistik</h2>
+  <p class="hinweis">
+    Zähler aus dieser Installation. Alles lokal, nichts verlässt das Gerät.
+  </p>
+  <div class="kpi">
+    <b id="st-suchen">0</b>
+    <small>Suchen</small>
+  </div>
+  <div class="kpi">
+    <b id="st-treffer">0</b>
+    <small>Treffer gesamt</small>
+  </div>
+  <div class="kpi">
+    <b id="st-downloads">0</b>
+    <small>Downloads</small>
+  </div>
+  <div class="kpi">
+    <b id="st-tests">0</b>
+    <small>bestandene Prüfungen</small>
+  </div>
+  <div class="kpi">
+    <b id="st-quellen">0</b>
+    <small>aktive Portale</small>
+  </div>
+  <div class="reihe">
+    <button class="btn rot" id="st-reset">Zähler zurücksetzen</button>
+  </div>
+</template>
+
+<template data-page="diagnose">
+  <h2>Diagnose</h2>
+  <p class="hinweis">
+    Zuerst die Testsuite, dann die Live-Quellen. Die Berichtstabelle zeigt pro Quelle, was bei der letzten Suche passiert ist.
+  </p>
+  <div class="reihe">
+    <button class="btn" id="tests-start">Testsuite starten</button>
+    <button class="btn ghost" id="quellen-test">Quellen testen</button>
+  </div>
+  <div class="box">
+    <h3>Testsuite</h3>
+    <div class="balken"><i id="test-balken"></i></div>
+    <div id="test-out"><div class="leer">Nicht gestartet.</div></div>
+  </div>
+  <div class="box">
+    <h3>Letzte Suche</h3>
+    <div id="bericht"><div class="leer">Noch keine Suche.</div></div>
+  </div>
+  <div class="box">
+    <h3>Live-Quellen</h3>
+    <div id="diag-out"><div class="leer">Nicht getestet.</div></div>
+  </div>
+  <div class="box">
+    <h3>Lernbericht</h3>
+    <div id="lern-out" class="hinweis">—</div>
+  </div>
+</template>
+
+<template data-page="einstellungen">
+  <h2>Einstellungen</h2>
+  <label class="zeile">
+    <span>Portale</span>
+    <div id="portale-box"></div>
+  </label>
+  <label class="zeile">
+    <span>Parallele Anfragen</span>
+    <input type="number" id="e-parallel" min="1" max="10" value="4">
+  </label>
+  <label class="zeile">
+    <span>Timeout je Anfrage (ms)</span>
+    <input type="number" id="e-timeout" min="3000" max="45000" step="1000" value="12000">
+  </label>
+  <label class="zeile">
+    <span>Mindest-Ähnlichkeit (0–1)</span>
+    <input type="number" id="e-score" min="0" max="1" step="0.05" value="0.4">
+  </label>
+  <label class="zeile">
+    <span>Maximale Treffer</span>
+    <input type="number" id="e-max" min="3" max="60" value="20">
+  </label>
+  <label class="zeile">
+    <span>Katalogtreffer anzeigen</span>
+    <div><input type="checkbox" id="e-katalog" checked></div>
+  </label>
+  <div class="trenner"></div>
+  <h3>KI (optional)</h3>
+  <p class="hinweis">Ohne Schlüssel arbeitet der Agent regelbasiert.</p>
+  <label class="zeile">
+    <span>API-Schlüssel</span>
+    <input type="password" id="e-key" placeholder="sk-…" autocomplete="off">
+  </label>
+  <label class="zeile">
+    <span>Endpunkt</span>
+    <input type="url" id="e-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
+  </label>
+  <label class="zeile">
+    <span>Modell</span>
+    <input type="text" id="e-modell" placeholder="gpt-4o-mini">
+  </label>
+  <div class="reihe">
+    <button class="btn" id="e-speichern">Speichern</button>
+    <button class="btn ghost" id="e-export">Export</button>
+    <button class="btn ghost" id="e-import">Import</button>
+  </div>
+  <div class="reihe">
+    <button class="btn rot" id="e-reset">Alles zurücksetzen</button>
+  </div>
+  <textarea id="e-daten" placeholder="Export/Import-JSON"></textarea>
+</template>
+
+<template data-page="info">
+  <h2>Info</h2>
+  <div class="box">
+    <h3>Aufbau</h3>
+    <p class="hinweis">
+      Drei Ebenen: Katalog (offline, immer verfügbar), Live-Portale über Reader und Proxies, Hoster-Ermittlung je Treffer.
+      Fällt eine Ebene aus, arbeiten die anderen weiter.
+    </p>
+  </div>
+  <div class="box">
+    <h3>Downloads</h3>
+    <p class="hinweis">
+      Direkte MP4-Links sind echte Links mit download-Attribut und funktionieren ohne JavaScript dazwischen.
+      Bei großen Dateien bricht ein Proxy ab — dann im Player öffnen und über Teilen speichern.
+    </p>
+  </div>
+  <div class="box">
+    <h3>Recht</h3>
+    <p class="hinweis">
+      Die Portale hosten nichts selbst, sie verlinken auf Hoster. Was du lädst, ist eine Kopie für den Privatgebrauch. Ohne Gewähr.
+    </p>
+  </div>
+</template>
+
+<script>
+"use strict";
+
+const APP = {
+  version: "12",
+  build: "2026-11-18"
+};
+
+const LS = "kinolotse.v12";
+
+const PORTALE = [
+  { id: "filmpalast", name: "Filmpalast", s: q => "https://filmpalast.to/search/title/" + encodeURIComponent(q) },
+  { id: "filmpalast2", name: "Filmpalast.la", s: q => "https://filmpalast.la/search/title/" + encodeURIComponent(q) },
+  { id: "megakino", name: "Megakino", s: q => "https://megakino.to/?s=" + encodeURIComponent(q) },
+  { id: "aniworld", name: "AniWorld", s: q => "https://aniworld.to/search?q=" + encodeURIComponent(q) },
+  { id: "filmfans", name: "Filmfans", s: q => "https://filmfans.org/search?q=" + encodeURIComponent(q) },
+  { id: "kinoger", name: "Kinoger", s: q => "https://kinoger.to/search?q=" + encodeURIComponent(q) },
+  { id: "streamkiste", name: "Streamkiste", s: q => "https://streamkiste.tv/?s=" + encodeURIComponent(q) },
+  { id: "sto", name: "S.to", s: q => "https://s.to/suche?q=" + encodeURIComponent(q) },
+  { id: "kinox", name: "Kinox", s: q => "https://kinox.to/Search.html?q=" + encodeURIComponent(q) },
+  { id: "movie4k", name: "Movie4k", s: q => "https://movie4k.to/search.php?search=" + encodeURIComponent(q) },
+  { id: "filmstreams", name: "Film-Streams", s: q => "https://film-streams.org/?s=" + encodeURIComponent(q) },
+  { id: "burning", name: "Burning-Series", s: q => "https://burning-series.org/search?q=" + encodeURIComponent(q) },
+  { id: "serienstream", name: "Serienstream", s: q => "https://serienstream.to/suche?q=" + encodeURIComponent(q) },
+  { id: "hdfilme", name: "HDFilme", s: q => "https://hdfilme.tv/search?q=" + encodeURIComponent(q) },
+  { id: "xcine", name: "XCine", s: q => "https://xcine.to/?s=" + encodeURIComponent(q) },
+  { id: "kinokiste", name: "Kinokiste", s: q => "https://kinokiste.to/?s=" + encodeURIComponent(q) },
+  { id: "streamcloud", name: "Streamcloud", s: q => "https://streamcloud.my/?s=" + encodeURIComponent(q) },
+  { id: "ddlwarez", name: "DDL-Warez", s: q => "https://ddl-warez.cc/?s=" + encodeURIComponent(q) },
+  { id: "kinoflix", name: "Kinoflix", s: q => "https://kinoflix.to/?s=" + encodeURIComponent(q) },
+  { id: "filmo", name: "Filmo", s: q => "https://filmo.to/search?q=" + encodeURIComponent(q) },
+  { id: "serienfans", name: "Serienfans", s: q => "https://serienfans.org/search?q=" + encodeURIComponent(q) },
+  { id: "kinoheld", name: "Kinoheld", s: q => "https://kinoheld.de/suche?q=" + encodeURIComponent(q) },
+  { id: "filmstarts", name: "Filmstarts", s: q => "https://www.filmstarts.de/suche/?q=" + encodeURIComponent(q) },
+  { id: "ofdb", name: "OFDb", s: q => "https://www.ofdb.de/suche/?q=" + encodeURIComponent(q) },
+  { id: "moviepilot", name: "Moviepilot", s: q => "https://www.moviepilot.de/search?q=" + encodeURIComponent(q) }
+];
+
+const HOSTER = [
+  { id: "vidoza", name: "Vidoza", re: /vidoza\.(net|to|com)/i, bsp: "https://vidoza.net/embed-a.html" },
+  { id: "voe", name: "VOE", re: /voe\.(sx|un)/i, bsp: "https://voe.sx/e/a" },
+  { id: "vidsonic", name: "Vidsonic", re: /vidsonic\.(net|com)/i, bsp: "https://vidsonic.net/e/a" },
+  { id: "filemoon", name: "Filemoon", re: /filemoon\.(sx|to|com)/i, bsp: "https://filemoon.sx/e/a" },
+  { id: "streamtape", name: "Streamtape", re: /streamtape\.(com|net|to)/i, bsp: "https://streamtape.com/e/a" },
+  { id: "doodstream", name: "Doodstream", re: /(dood\.[a-z]{2,4}|doodstream\.com)/i, bsp: "https://dood.to/e/a" },
+  { id: "mixdrop", name: "MixDrop", re: /mixdrop\.(co|to|sx)/i, bsp: "https://mixdrop.co/e/a" },
+  { id: "vudeo", name: "Vudeo", re: /vudeo\.(net|io)/i, bsp: "https://vudeo.net/e/a" },
+  { id: "wolfstream", name: "Wolfstream", re: /wolfstream\.tv/i, bsp: "https://wolfstream.tv/e/a" },
+  { id: "streamlare", name: "Streamlare", re: /streamlare\.com/i, bsp: "https://streamlare.com/e/a" },
+  { id: "luluvdo", name: "Luluvdo", re: /luluvdo\.com/i, bsp: "https://luluvdo.com/e/a" },
+  { id: "upstream", name: "Upstream", re: /upstream\.to/i, bsp: "https://upstream.to/e/a" },
+  { id: "odysseusa", name: "Odysseus", re: /odysseusa\.(com|net)/i, bsp: "https://odysseusa.com/e/a" },
+  { id: "streamhide", name: "Streamhide", re: /streamhide\.(com|to)/i, bsp: "https://streamhide.com/e/a" },
+  { id: "evoload", name: "Evoload", re: /evoload\.io/i, bsp: "https://evoload.io/e/a" },
+  { id: "streamsb", name: "StreamSB", re: /streamsb\.(net|com)/i, bsp: "https://streamsb.net/e/a" },
+  { id: "vidsrc", name: "VidSrc", re: /vidsrc\.(to|me|net)/i, bsp: "https://vidsrc.to/embed/movie/a" },
+  { id: "embedrise", name: "Embedrise", re: /embedrise\.com/i, bsp: "https://embedrise.com/e/a" },
+  { id: "veev", name: "Veev", re: /veev\.to/i, bsp: "https://veev.to/e/a" },
+  { id: "vadb", name: "VA-DB", re: /vadb\.(com|net)/i, bsp: "https://vadb.com/e/a" },
+  { id: "supervideo", name: "Supervideo", re: /supervideo\.(tv|cc)/i, bsp: "https://supervideo.tv/e/a" },
+  { id: "streamhub", name: "Streamhub", re: /streamhub\.to/i, bsp: "https://streamhub.to/e/a" },
+  { id: "streamwish", name: "Streamwish", re: /streamwish\.(to|com)/i, bsp: "https://streamwish.to/e/a" },
+  { id: "filelions", name: "Filelions", re: /filelions\.(to|com)/i, bsp: "https://filelions.to/e/a" },
+  { id: "abstream", name: "Abstream", re: /abstream\.to/i, bsp: "https://abstream.to/e/a" },
+  { id: "streamvid", name: "Streamvid", re: /streamvid\.net/i, bsp: "https://streamvid.net/e/a" },
+  { id: "kinoger2", name: "Kinoger-Play", re: /kinoger\.com/i, bsp: "https://kinoger.com/e/a" },
+  { id: "dailymotion", name: "Dailymotion", re: /dailymotion\.com/i, bsp: "https://dailymotion.com/embed/video/a" },
+  { id: "okru", name: "OK.ru", re: /ok\.ru/i, bsp: "https://ok.ru/videoembed/a" },
+  { id: "vk", name: "VK", re: /vk\.com/i, bsp: "https://vk.com/video_ext.php?oid=a" },
+  { id: "youtube", name: "YouTube", re: /(youtube\.com|youtu\.be)/i, bsp: "https://youtube.com/embed/a" },
+  { id: "archive", name: "Archive.org", re: /archive\.org/i, bsp: "https://archive.org/embed/a" },
+  { id: "bunny", name: "Bunny", re: /(bunnycdn|b-cdn)\.(com|net)/i, bsp: "https://b-cdn.net/a" },
+  { id: "cloudflare", name: "Stream", re: /(cloudflarestream|videodelivery)\./i, bsp: "https://videodelivery.net/a" },
+  { id: "mux", name: "Mux", re: /mux\.com/i, bsp: "https://mux.com/a" },
+  { id: "jwplayer", name: "JWPlayer", re: /jwplayer\.com/i, bsp: "https://jwplayer.com/a" },
+  { id: "sibnet", name: "Sibnet", re: /sibnet\.ru/i, bsp: "https://video.sibnet.ru/shell.php?videoid=a" },
+  { id: "sendvid", name: "Sendvid", re: /sendvid\.com/i, bsp: "https://sendvid.com/embed/a" },
+  { id: "vidlox", name: "Vidlox", re: /vidlox\.(tv|me)/i, bsp: "https://vidlox.tv/e/a" },
+  { id: "vidoza2", name: "Vidoza-Alt", re: /vidoza\.org/i, bsp: "https://vidoza.org/embed-a.html" }
+];
+
+const WERBUNG = [
+  "doubleclick",
+  "googlesyndication",
+  "googletagmanager",
+  "google-analytics",
+  "adservice",
+  "popads",
+  "popcash",
+  "propellerads",
+  "onclickads",
+  "exoclick",
+  "juicyads",
+  "trafficjunky",
+  "facebook.com",
+  "twitter.com",
+  "instagram.com",
+  "t.me",
+  "discord.gg",
+  "patreon.com",
+  "paypal.com",
+  "amazon.de",
+  "imdb.com",
+  "cloudflare.com",
+  "gstatic.com"
+];
+
+const TRACK = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "fbclid",
+  "gclid",
+  "ref",
+  "referrer",
+  "mc_cid",
+  "mc_eid"
+];
+
+const VORG = {
+  parallel: 4,
+  timeout: 12000,
+  score: 0.4,
+  max: 20,
+  katalog: true,
+  key: "",
+  endpoint: "https://api.openai.com/v1/chat/completions",
+  modell: "gpt-4o-mini",
+  portale: {}
+};
+PORTALE.forEach(function (p) {
+  VORG.portale[p.id] = true;
+});
+</script>
+
+<script>
+"use strict";
+
+const KATALOG = [
+  { t: "Big Buck Bunny", y: 2008, g: "Offen" },
+  { t: "Sintel", y: 2010, g: "Offen" },
+  { t: "Tears of Steel", y: 2012, g: "Offen" },
+  { t: "Elephants Dream", y: 2006, g: "Offen" },
+  { t: "For Bigger Blazes", y: 2013, g: "Offen" },
+  { t: "For Bigger Escapes", y: 2013, g: "Offen" },
+  { t: "For Bigger Fun", y: 2013, g: "Offen" },
+  { t: "For Bigger Joyrides", y: 2013, g: "Offen" },
+  { t: "Subaru Outback", y: 2013, g: "Offen" },
+  { t: "We Are Going On Bullrun", y: 2013, g: "Offen" },
+  { t: "Inception", y: 2010, g: "Sci-Fi" },
+  { t: "Interstellar", y: 2014, g: "Sci-Fi" },
+  { t: "The Dark Knight", y: 2008, g: "Action" },
+  { t: "The Dark Knight Rises", y: 2012, g: "Action" },
+  { t: "Batman Begins", y: 2005, g: "Action" },
+  { t: "Pulp Fiction", y: 1994, g: "Krimi" },
+  { t: "Fight Club", y: 1999, g: "Drama" },
+  { t: "Forrest Gump", y: 1994, g: "Drama" },
+  { t: "The Matrix", y: 1999, g: "Sci-Fi" },
+  { t: "Matrix Reloaded", y: 2003, g: "Sci-Fi" },
+  { t: "Matrix Revolutions", y: 2003, g: "Sci-Fi" },
+  { t: "Der Herr der Ringe", y: 2001, g: "Fantasy" },
+  { t: "Die zwei Türme", y: 2002, g: "Fantasy" },
+  { t: "Die Rückkehr des Königs", y: 2003, g: "Fantasy" },
+  { t: "Der Pate", y: 1972, g: "Krimi" },
+  { t: "Der Pate 2", y: 1974, g: "Krimi" },
+  { t: "Goodfellas", y: 1990, g: "Krimi" },
+  { t: "Casino", y: 1995, g: "Krimi" },
+  { t: "Shining", y: 1980, g: "Horror" },
+  { t: "Das Schweigen der Lämmer", y: 1991, g: "Thriller" },
+  { t: "Sieben", y: 1995, g: "Thriller" },
+  { t: "Zodiac", y: 2007, g: "Thriller" },
+  { t: "Der Soldat James Ryan", y: 1998, g: "Krieg" },
+  { t: "Gladiator", y: 2000, g: "Action" },
+  { t: "Braveheart", y: 1995, g: "Krieg" },
+  { t: "Troja", y: 2004, g: "Krieg" },
+  { t: "300", y: 2006, g: "Action" },
+  { t: "Der König der Löwen", y: 1994, g: "Animation" },
+  { t: "Toy Story", y: 1995, g: "Animation" },
+  { t: "Toy Story 2", y: 1999, g: "Animation" },
+  { t: "Findet Nemo", y: 2003, g: "Animation" },
+  { t: "Findet Dorie", y: 2016, g: "Animation" },
+  { t: "Shrek", y: 2001, g: "Animation" },
+  { t: "Shrek 2", y: 2004, g: "Animation" },
+  { t: "Die Eiskönigin", y: 2013, g: "Animation" },
+  { t: "Encanto", y: 2021, g: "Animation" },
+  { t: "Coco", y: 2017, g: "Animation" },
+  { t: "Alles steht Kopf", y: 2015, g: "Animation" },
+  { t: "Oben", y: 2009, g: "Animation" },
+  { t: "Wall-E", y: 2008, g: "Animation" },
+  { t: "Ratatouille", y: 2007, g: "Animation" },
+  { t: "Die Monster AG", y: 2001, g: "Animation" },
+  { t: "Avatar", y: 2009, g: "Sci-Fi" },
+  { t: "Avatar 2", y: 2022, g: "Sci-Fi" },
+  { t: "Titanic", y: 1997, g: "Drama" },
+  { t: "The Mandalorian", y: 2019, g: "Serie" },
+  { t: "Breaking Bad", y: 2008, g: "Serie" },
+  { t: "Better Call Saul", y: 2015, g: "Serie" },
+  { t: "Stranger Things", y: 2016, g: "Serie" },
+  { t: "Game of Thrones", y: 2011, g: "Serie" },
+  { t: "House of the Dragon", y: 2022, g: "Serie" },
+  { t: "Dark", y: 2017, g: "Serie" },
+  { t: "Babylon Berlin", y: 2017, g: "Serie" },
+  { t: "Tatort", y: 1970, g: "Serie" },
+  { t: "Polizeiruf 110", y: 1971, g: "Serie" },
+  { t: "Stromberg", y: 2004, g: "Serie" },
+  { t: "Der Schuh des Manitu", y: 2001, g: "Komödie" },
+  { t: "Fack ju Göhte", y: 2013, g: "Komödie" },
+  { t: "Fack ju Göhte 2", y: 2015, g: "Komödie" },
+  { t: "Fack ju Göhte 3", y: 2017, g: "Komödie" },
+  { t: "Das Boot", y: 1981, g: "Krieg" },
+  { t: "Lola rennt", y: 1998, g: "Thriller" },
+  { t: "Die Blechtrommel", y: 1979, g: "Drama" },
+  { t: "Männer", y: 1985, g: "Komödie" },
+  { t: "Léon der Profi", y: 1994, g: "Action" },
+  { t: "Amélie", y: 2001, g: "Komödie" },
+  { t: "Parasite", y: 2019, g: "Thriller" },
+  { t: "Joker", y: 2019, g: "Drama" },
+  { t: "Oppenheimer", y: 2023, g: "Drama" },
+  { t: "Barbie", y: 2023, g: "Komödie" },
+  { t: "Dune", y: 2021, g: "Sci-Fi" },
+  { t: "Dune 2", y: 2024, g: "Sci-Fi" },
+  { t: "Everything Everywhere All at Once", y: 2022, g: "Sci-Fi" },
+  { t: "Whiplash", y: 2014, g: "Drama" },
+  { t: "La La Land", y: 2016, g: "Musical" },
+  { t: "Mad Max Fury Road", y: 2015, g: "Action" },
+  { t: "Blade Runner", y: 1982, g: "Sci-Fi" },
+  { t: "Blade Runner 2049", y: 2017, g: "Sci-Fi" },
+  { t: "Der Hobbit", y: 2012, g: "Fantasy" },
+  { t: "Harry Potter und der Stein der Weisen", y: 2001, g: "Fantasy" },
+  { t: "Harry Potter und die Kammer des Schreckens", y: 2002, g: "Fantasy" },
+  { t: "Harry Potter und der Gefangene von Askaban", y: 2004, g: "Fantasy" },
+  { t: "Star Wars", y: 1977, g: "Sci-Fi" },
+  { t: "Das Imperium schlägt zurück", y: 1980, g: "Sci-Fi" },
+  { t: "Die Rückkehr der Jedi-Ritter", y: 1983, g: "Sci-Fi" },
+  { t: "Zurück in die Zukunft", y: 1985, g: "Sci-Fi" },
+  { t: "Alien", y: 1979, g: "Horror" },
+  { t: "Aliens", y: 1986, g: "Horror" },
+  { t: "Der weiße Hai", y: 1975, g: "Horror" },
+  { t: "Terminator", y: 1984, g: "Action" },
+  { t: "Terminator 2", y: 1991, g: "Action" },
+  { t: "Stirb langsam", y: 1988, g: "Action" },
+  { t: "Indiana Jones", y: 1981, g: "Abenteuer" },
+  { t: "Jurassic Park", y: 1993, g: "Abenteuer" },
+  { t: "Die Verurteilten", y: 1994, g: "Drama" },
+  { t: "Schindlers Liste", y: 1993, g: "Drama" },
+  { t: "Der Club der toten Dichter", y: 1989, g: "Drama" },
+  { t: "Rain Man", y: 1988, g: "Drama" },
+  { t: "Philadelphia", y: 1993, g: "Drama" },
+  { t: "Big", y: 1988, g: "Komödie" },
+  { t: "Ghostbusters", y: 1984, g: "Komödie" },
+  { t: "Pretty Woman", y: 1990, g: "Komödie" },
+  { t: "Dirty Dancing", y: 1987, g: "Romanze" },
+  { t: "Notting Hill", y: 1999, g: "Romanze" },
+  { t: "Tatsächlich Liebe", y: 2003, g: "Romanze" },
+  { t: "Der Teufel trägt Prada", y: 2006, g: "Komödie" },
+  { t: "Ziemlich beste Freunde", y: 2011, g: "Komödie" },
+  { t: "Intouchables", y: 2011, g: "Komödie" },
+  { t: "Der Vorleser", y: 2008, g: "Drama" },
+  { t: "Das Leben der Anderen", y: 2006, g: "Drama" },
+  { t: "Good Bye Lenin", y: 2003, g: "Komödie" },
+  { t: "Sonnenallee", y: 1999, g: "Komödie" },
+  { t: "Das Wunder von Bern", y: 2003, g: "Drama" },
+  { t: "Der Untergang", y: 2004, g: "Krieg" },
+  { t: "Napola", y: 2004, g: "Drama" },
+  { t: "Nordwand", y: 2008, g: "Abenteuer" },
+  { t: "Soul Kitchen", y: 2009, g: "Komödie" },
+  { t: "Victoria", y: 2015, g: "Thriller" },
+  { t: "Toni Erdmann", y: 2016, g: "Komödie" },
+  { t: "Systemsprenger", y: 2019, g: "Drama" },
+  { t: "Der Hauptmann", y: 2017, g: "Krieg" },
+  { t: "Werk ohne Autor", y: 2018, g: "Drama" },
+  { t: "Deutschland 83", y: 2015, g: "Serie" },
+  { t: "Deutschland 86", y: 2018, g: "Serie" },
+  { t: "4 Blocks", y: 2017, g: "Serie" },
+  { t: "How to Sell Drugs Online", y: 2019, g: "Serie" },
+  { t: "Biohackers", y: 2020, g: "Serie" },
+  { t: "Tribes of Europa", y: 2021, g: "Serie" },
+  { t: "Kleo", y: 2022, g: "Serie" },
+  { t: "Im Westen nichts Neues", y: 2022, g: "Krieg" },
+  { t: "Ku'damm 56", y: 2016, g: "Serie" },
+  { t: "Weissensee", y: 2010, g: "Serie" },
+  { t: "Doctor Who", y: 2005, g: "Sci-Fi" },
+  { t: "Sherlock", y: 2010, g: "Krimi" },
+  { t: "Luther", y: 2010, g: "Krimi" },
+  { t: "Peaky Blinders", y: 2013, g: "Krimi" },
+  { t: "Narcos", y: 2015, g: "Krimi" },
+  { t: "El Chapo", y: 2017, g: "Krimi" },
+  { t: "The Crown", y: 2016, g: "Drama" },
+  { t: "The Witcher", y: 2019, g: "Fantasy" },
+  { t: "Wednesday", y: 2022, g: "Serie" },
+  { t: "Squid Game", y: 2021, g: "Thriller" },
+  { t: "Money Heist", y: 2017, g: "Thriller" },
+  { t: "Lupin", y: 2021, g: "Krimi" },
+  { t: "Chernobyl", y: 2019, g: "Drama" },
+  { t: "True Detective", y: 2014, g: "Krimi" },
+  { t: "Fargo", y: 2014, g: "Krimi" },
+  { t: "Westworld", y: 2016, g: "Sci-Fi" },
+  { t: "Black Mirror", y: 2011, g: "Sci-Fi" },
+  { t: "Love Death and Robots", y: 2019, g: "Animation" },
+  { t: "Arcane", y: 2021, g: "Animation" },
+  { t: "Cyberpunk Edgerunners", y: 2022, g: "Animation" },
+  { t: "Attack on Titan", y: 2013, g: "Anime" },
+  { t: "Death Note", y: 2006, g: "Anime" },
+  { t: "One Piece", y: 1999, g: "Anime" },
+  { t: "Naruto", y: 2002, g: "Anime" },
+  { t: "Bleach", y: 2004, g: "Anime" },
+  { t: "Demon Slayer", y: 2019, g: "Anime" },
+  { t: "Jujutsu Kaisen", y: 2020, g: "Anime" },
+  { t: "Chainsaw Man", y: 2022, g: "Anime" },
+  { t: "Spy x Family", y: 2022, g: "Anime" },
+  { t: "Fullmetal Alchemist", y: 2009, g: "Anime" },
+  { t: "Cowboy Bebop", y: 1998, g: "Anime" },
+  { t: "Akira", y: 1988, g: "Anime" },
+  { t: "Ghost in the Shell", y: 1995, g: "Anime" },
+  { t: "Perfect Blue", y: 1997, g: "Anime" },
+  { t: "Paprika", y: 2006, g: "Anime" },
+  { t: "Chihiros Reise ins Zauberland", y: 2001, g: "Anime" },
+  { t: "Mein Nachbar Totoro", y: 1988, g: "Anime" },
+  { t: "Prinzessin Mononoke", y: 1997, g: "Anime" },
+  { t: "Das wandelnde Schloss", y: 2004, g: "Anime" },
+  { t: "Your Name", y: 2016, g: "Anime" },
+  { t: "Weathering with You", y: 2019, g: "Anime" },
+  { t: "Suzume", y: 2022, g: "Anime" },
+  { t: "Der Wind steht auf", y: 2013, g: "Anime" },
+  { t: "Die letzten Glühwürmchen", y: 1988, g: "Anime" },
+  { t: "Nausicaä", y: 1984, g: "Anime" },
+  { t: "Lupin III", y: 1979, g: "Anime" },
+  { t: "Redline", y: 2009, g: "Anime" },
+  { t: "Vampire Hunter D", y: 1985, g: "Anime" },
+  { t: "Ninja Scroll", y: 1993, g: "Anime" },
+  { t: "Sword of the Stranger", y: 2007, g: "Anime" },
+  { t: "Summer Wars", y: 2009, g: "Anime" },
+  { t: "Wolf Children", y: 2012, g: "Anime" },
+  { t: "Der Garten der Worte", y: 2013, g: "Anime" },
+  { t: "A Silent Voice", y: 2016, g: "Anime" },
+  { t: "I Want to Eat Your Pancreas", y: 2018, g: "Anime" },
+  { t: "Josee der Tiger und die Fische", y: 2020, g: "Anime" },
+  { t: "Belle", y: 2021, g: "Anime" },
+  { t: "Der Junge und der Reiher", y: 2023, g: "Anime" },
+  { t: "Blame!", y: 2017, g: "Anime" },
+  { t: "Violet Evergarden", y: 2018, g: "Anime" },
+  { t: "Made in Abyss", y: 2017, g: "Anime" },
+  { t: "Steins Gate", y: 2011, g: "Anime" },
+  { t: "Code Geass", y: 2006, g: "Anime" },
+  { t: "Gurren Lagann", y: 2007, g: "Anime" },
+  { t: "Evangelion", y: 1995, g: "Anime" },
+  { t: "Trigun", y: 1998, g: "Anime" },
+  { t: "Samurai Champloo", y: 2004, g: "Anime" },
+  { t: "Mushishi", y: 2005, g: "Anime" },
+  { t: "Monster", y: 2004, g: "Anime" },
+  { t: "Berserk", y: 1997, g: "Anime" },
+  { t: "Hellsing", y: 2001, g: "Anime" },
+  { t: "Claymore", y: 2007, g: "Anime" },
+  { t: "Elfen Lied", y: 2004, g: "Anime" },
+  { t: "Another", y: 2012, g: "Anime" },
+  { t: "Parasyte", y: 2014, g: "Anime" },
+  { t: "Tokyo Ghoul", y: 2014, g: "Anime" },
+  { t: "Psycho-Pass", y: 2012, g: "Anime" },
+  { t: "Erased", y: 2016, g: "Anime" },
+  { t: "Re Zero", y: 2016, g: "Anime" },
+  { t: "Konosuba", y: 2016, g: "Anime" },
+  { t: "Overlord", y: 2015, g: "Anime" },
+  { t: "Sword Art Online", y: 2012, g: "Anime" },
+  { t: "Log Horizon", y: 2013, g: "Anime" },
+  { t: "No Game No Life", y: 2014, g: "Anime" },
+  { t: "Hunter x Hunter", y: 2011, g: "Anime" },
+  { t: "Yu Yu Hakusho", y: 1992, g: "Anime" },
+  { t: "Dragon Ball", y: 1986, g: "Anime" },
+  { t: "Dragon Ball Z", y: 1989, g: "Anime" },
+  { t: "Sailor Moon", y: 1992, g: "Anime" },
+  { t: "Digimon", y: 1999, g: "Anime" },
+  { t: "Pokemon", y: 1997, g: "Anime" },
+  { t: "Yugioh", y: 2000, g: "Anime" },
+  { t: "Ranma 1/2", y: 1989, g: "Anime" },
+  { t: "Inuyasha", y: 2000, g: "Anime" },
+  { t: "Fairy Tail", y: 2009, g: "Anime" },
+  { t: "Black Clover", y: 2017, g: "Anime" },
+  { t: "My Hero Academia", y: 2016, g: "Anime" },
+  { t: "One Punch Man", y: 2015, g: "Anime" },
+  { t: "Mob Psycho 100", y: 2016, g: "Anime" },
+  { t: "Dr Stone", y: 2019, g: "Anime" },
+  { t: "Promised Neverland", y: 2019, g: "Anime" },
+  { t: "Vinland Saga", y: 2019, g: "Anime" },
+  { t: "Kingdom", y: 2012, g: "Anime" },
+  { t: "Golden Kamuy", y: 2018, g: "Anime" },
+  { t: "Dorohedoro", y: 2020, g: "Anime" },
+  { t: "Beastars", y: 2019, g: "Anime" },
+  { t: "Aggretsuko", y: 2018, g: "Anime" },
+  { t: "Great Pretender", y: 2020, g: "Anime" },
+  { t: "Akudama Drive", y: 2020, g: "Anime" },
+  { t: "Deca-Dence", y: 2020, g: "Anime" },
+  { t: "ID Invaded", y: 2020, g: "Anime" },
+  { t: "Tower of God", y: 2020, g: "Anime" },
+  { t: "God of High School", y: 2020, g: "Anime" },
+  { t: "Noblesse", y: 2020, g: "Anime" },
+  { t: "Somali und der Waldgeist", y: 2020, g: "Anime" },
+  { t: "To Your Eternity", y: 2021, g: "Anime" },
+  { t: "Odd Taxi", y: 2021, g: "Anime" },
+  { t: "Vivy", y: 2021, g: "Anime" },
+  { t: "86 Eighty Six", y: 2021, g: "Anime" },
+  { t: "Ranking of Kings", y: 2021, g: "Anime" },
+  { t: "Blue Period", y: 2021, g: "Anime" },
+  { t: "Lycoris Recoil", y: 2022, g: "Anime" },
+  { t: "Bocchi the Rock", y: 2022, g: "Anime" },
+  { t: "Blue Lock", y: 2022, g: "Anime" },
+  { t: "Oshi no Ko", y: 2023, g: "Anime" },
+  { t: "Frieren", y: 2023, g: "Anime" },
+  { t: "Apothecary Diaries", y: 2023, g: "Anime" },
+  { t: "Jigokuraku", y: 2023, g: "Anime" },
+  { t: "Zom 100", y: 2023, g: "Anime" },
+  { t: "Pluto", y: 2023, g: "Anime" },
+  { t: "Scott Pilgrim", y: 2023, g: "Animation" },
+  { t: "Spider-Man", y: 2002, g: "Action" },
+  { t: "Spider-Man 2", y: 2004, g: "Action" },
+  { t: "Spider-Man 3", y: 2007, g: "Action" },
+  { t: "The Amazing Spider-Man", y: 2012, g: "Action" },
+  { t: "Spider-Man Homecoming", y: 2017, g: "Action" },
+  { t: "Spider-Man Far From Home", y: 2019, g: "Action" },
+  { t: "Spider-Man No Way Home", y: 2021, g: "Action" },
+  { t: "Spider-Man A New Universe", y: 2018, g: "Animation" },
+  { t: "Spider-Man Across the Spider-Verse", y: 2023, g: "Animation" },
+  { t: "Iron Man", y: 2008, g: "Action" },
+  { t: "Iron Man 2", y: 2010, g: "Action" },
+  { t: "Iron Man 3", y: 2013, g: "Action" },
+  { t: "Captain America", y: 2011, g: "Action" },
+  { t: "The Winter Soldier", y: 2014, g: "Action" },
+  { t: "Civil War", y: 2016, g: "Action" },
+  { t: "Thor", y: 2011, g: "Action" },
+  { t: "Thor Ragnarok", y: 2017, g: "Action" },
+  { t: "Doctor Strange", y: 2016, g: "Action" },
+  { t: "Black Panther", y: 2018, g: "Action" },
+  { t: "Captain Marvel", y: 2019, g: "Action" },
+  { t: "Ant-Man", y: 2015, g: "Action" },
+  { t: "Guardians of the Galaxy", y: 2014, g: "Action" },
+  { t: "Guardians of the Galaxy 2", y: 2017, g: "Action" },
+  { t: "Guardians of the Galaxy 3", y: 2023, g: "Action" },
+  { t: "Avengers", y: 2012, g: "Action" },
+  { t: "Age of Ultron", y: 2015, g: "Action" },
+  { t: "Infinity War", y: 2018, g: "Action" },
+  { t: "Endgame", y: 2019, g: "Action" },
+  { t: "Deadpool", y: 2016, g: "Komödie" },
+  { t: "Deadpool 2", y: 2018, g: "Komödie" },
+  { t: "Logan", y: 2017, g: "Action" },
+  { t: "Wolverine", y: 2013, g: "Action" },
+  { t: "X-Men", y: 2000, g: "Action" },
+  { t: "X-Men 2", y: 2003, g: "Action" },
+  { t: "First Class", y: 2011, g: "Action" },
+  { t: "Days of Future Past", y: 2014, g: "Action" },
+  { t: "Superman", y: 1978, g: "Action" },
+  { t: "Man of Steel", y: 2013, g: "Action" },
+  { t: "Wonder Woman", y: 2017, g: "Action" },
+  { t: "Aquaman", y: 2018, g: "Action" },
+  { t: "Shazam", y: 2019, g: "Komödie" },
+  { t: "The Batman", y: 2022, g: "Krimi" },
+  { t: "John Wick", y: 2014, g: "Action" },
+  { t: "John Wick 2", y: 2017, g: "Action" },
+  { t: "John Wick 3", y: 2019, g: "Action" },
+  { t: "John Wick 4", y: 2023, g: "Action" },
+  { t: "Mission Impossible", y: 1996, g: "Action" },
+  { t: "Mission Impossible 2", y: 2000, g: "Action" },
+  { t: "Fallout", y: 2018, g: "Action" },
+  { t: "James Bond", y: 1962, g: "Action" },
+  { t: "Casino Royale", y: 2006, g: "Action" },
+  { t: "Skyfall", y: 2012, g: "Action" },
+  { t: "Spectre", y: 2015, g: "Action" },
+  { t: "Keine Zeit zu sterben", y: 2021, g: "Action" },
+  { t: "Fast and Furious", y: 2001, g: "Action" },
+  { t: "Fast and Furious 5", y: 2011, g: "Action" },
+  { t: "Fast and Furious 7", y: 2015, g: "Action" },
+  { t: "Ocean's Eleven", y: 2001, g: "Krimi" },
+  { t: "Ocean's Twelve", y: 2004, g: "Krimi" },
+  { t: "Heat", y: 1995, g: "Krimi" },
+  { t: "Departed", y: 2006, g: "Krimi" },
+  { t: "The Irishman", y: 2019, g: "Krimi" },
+  { t: "Scarface", y: 1983, g: "Krimi" },
+  { t: "Carlito's Way", y: 1993, g: "Krimi" },
+  { t: "Donnie Brasco", y: 1997, g: "Krimi" },
+  { t: "Snatch", y: 2000, g: "Krimi" },
+  { t: "Bube Dame König Gras", y: 1998, g: "Krimi" },
+  { t: "Lock Stock", y: 1998, g: "Krimi" },
+  { t: "RocknRolla", y: 2008, g: "Krimi" },
+  { t: "Sherlock Holmes", y: 2009, g: "Krimi" },
+  { t: "Knives Out", y: 2019, g: "Krimi" },
+  { t: "Glass Onion", y: 2022, g: "Krimi" },
+  { t: "Mord im Orientexpress", y: 2017, g: "Krimi" },
+  { t: "Tod auf dem Nil", y: 2022, g: "Krimi" },
+  { t: "Gone Girl", y: 2014, g: "Thriller" },
+  { t: "Girl on the Train", y: 2016, g: "Thriller" },
+  { t: "Der unsichtbare Gast", y: 2016, g: "Thriller" },
+  { t: "Prisoners", y: 2013, g: "Thriller" },
+  { t: "Sicario", y: 2015, g: "Thriller" },
+  { t: "Nightcrawler", y: 2014, g: "Thriller" },
+  { t: "Drive", y: 2011, g: "Thriller" },
+  { t: "Only God Forgives", y: 2013, g: "Thriller" },
+  { t: "Neon Demon", y: 2016, g: "Thriller" },
+  { t: "Get Out", y: 2017, g: "Horror" },
+  { t: "Us", y: 2019, g: "Horror" },
+  { t: "Nope", y: 2022, g: "Horror" },
+  { t: "Hereditary", y: 2018, g: "Horror" },
+  { t: "Midsommar", y: 2019, g: "Horror" },
+  { t: "The Witch", y: 2015, g: "Horror" },
+  { t: "It Follows", y: 2014, g: "Horror" },
+  { t: "Babadook", y: 2014, g: "Horror" },
+  { t: "Conjuring", y: 2013, g: "Horror" },
+  { t: "Insidious", y: 2010, g: "Horror" },
+  { t: "Sinister", y: 2012, g: "Horror" },
+  { t: "Es", y: 2017, g: "Horror" },
+  { t: "Friedhof der Kuscheltiere", y: 1989, g: "Horror" },
+  { t: "Poltergeist", y: 1982, g: "Horror" },
+  { t: "Exorzist", y: 1973, g: "Horror" },
+  { t: "Rosemary's Baby", y: 1968, g: "Horror" },
+  { t: "Psycho", y: 1960, g: "Horror" },
+  { t: "Die Vögel", y: 1963, g: "Horror" },
+  { t: "Nosferatu", y: 1922, g: "Horror" },
+  { t: "Dracula", y: 1992, g: "Horror" },
+  { t: "Interview mit einem Vampir", y: 1994, g: "Horror" },
+  { t: "Blade", y: 1998, g: "Horror" },
+  { t: "Underworld", y: 2003, g: "Horror" },
+  { t: "Resident Evil", y: 2002, g: "Horror" },
+  { t: "Silent Hill", y: 2006, g: "Horror" },
+  { t: "28 Days Later", y: 2002, g: "Horror" },
+  { t: "World War Z", y: 2013, g: "Horror" },
+  { t: "Train to Busan", y: 2016, g: "Horror" },
+  { t: "Shaun of the Dead", y: 2004, g: "Komödie" },
+  { t: "Zombieland", y: 2009, g: "Komödie" },
+  { t: "Army of Darkness", y: 1992, g: "Horror" },
+  { t: "Tanz der Teufel", y: 1981, g: "Horror" },
+  { t: "The Thing", y: 1982, g: "Horror" },
+  { t: "Event Horizon", y: 1997, g: "Horror" },
+  { t: "Sunshine", y: 2007, g: "Sci-Fi" },
+  { t: "Moon", y: 2009, g: "Sci-Fi" },
+  { t: "Arrival", y: 2016, g: "Sci-Fi" },
+  { t: "Contact", y: 1997, g: "Sci-Fi" },
+  { t: "Gravity", y: 2013, g: "Sci-Fi" },
+  { t: "Interstellar 2", y: 2026, g: "Sci-Fi" },
+  { t: "Der Marsianer", y: 2015, g: "Sci-Fi" },
+  { t: "Apollo 13", y: 1995, g: "Drama" },
+  { t: "First Man", y: 2018, g: "Drama" },
+  { t: "Hidden Figures", y: 2016, g: "Drama" },
+  { t: "The Imitation Game", y: 2014, g: "Drama" },
+  { t: "A Beautiful Mind", y: 2001, g: "Drama" },
+  { t: "Theory of Everything", y: 2014, g: "Drama" },
+  { t: "Bohemian Rhapsody", y: 2018, g: "Musik" },
+  { t: "Rocketman", y: 2019, g: "Musik" },
+  { t: "Elvis", y: 2022, g: "Musik" },
+  { t: "Walk the Line", y: 2005, g: "Musik" },
+  { t: "Ray", y: 2004, g: "Musik" },
+  { t: "Straight Outta Compton", y: 2015, g: "Musik" },
+  { t: "8 Mile", y: 2002, g: "Musik" },
+  { t: "Whiplash 2", y: 2025, g: "Musik" },
+  { t: "Sound of Metal", y: 2019, g: "Musik" },
+  { t: "Begin Again", y: 2013, g: "Musik" },
+  { t: "Once", y: 2007, g: "Musik" },
+  { t: "Sing Street", y: 2016, g: "Musik" },
+  { t: "Yesterday", y: 2019, g: "Komödie" },
+  { t: "Mamma Mia", y: 2008, g: "Musical" },
+  { t: "Les Misérables", y: 2012, g: "Musical" },
+  { t: "Chicago", y: 2002, g: "Musical" },
+  { t: "Moulin Rouge", y: 2001, g: "Musical" },
+  { t: "Greatest Showman", y: 2017, g: "Musical" },
+  { t: "Hamilton", y: 2020, g: "Musical" },
+  { t: "West Side Story", y: 2021, g: "Musical" },
+  { t: "In the Heights", y: 2021, g: "Musical" },
+  { t: "Cats", y: 2019, g: "Musical" },
+  { t: "Die Schöne und das Biest", y: 2017, g: "Musical" },
+  { t: "Aladdin", y: 2019, g: "Musical" },
+  { t: "Arielle", y: 2023, g: "Musical" },
+  { t: "Cinderella", y: 2015, g: "Romanze" },
+  { t: "Dornröschen", y: 1959, g: "Animation" },
+  { t: "Schneewittchen", y: 1937, g: "Animation" },
+  { t: "Pinocchio", y: 1940, g: "Animation" },
+  { t: "Bambi", y: 1942, g: "Animation" },
+  { t: "Dumbo", y: 1941, g: "Animation" },
+  { t: "Peter Pan", y: 1953, g: "Animation" },
+  { t: "Alice im Wunderland", y: 1951, g: "Animation" },
+  { t: "Das Dschungelbuch", y: 1967, g: "Animation" },
+  { t: "Aristocats", y: 1970, g: "Animation" },
+  { t: "Robin Hood", y: 1973, g: "Animation" },
+  { t: "Bernard und Bianca", y: 1977, g: "Animation" },
+  { t: "Cap und Capper", y: 1981, g: "Animation" },
+  { t: "Taran und der Zauberkessel", y: 1985, g: "Animation" },
+  { t: "Arielle die Meerjungfrau", y: 1989, g: "Animation" },
+  { t: "Die Schöne und das Biest 1991", y: 1991, g: "Animation" },
+  { t: "Aladdin 1992", y: 1992, g: "Animation" },
+  { t: "Pocahontas", y: 1995, g: "Animation" },
+  { t: "Der Glöckner von Notre Dame", y: 1996, g: "Animation" },
+  { t: "Hercules", y: 1997, g: "Animation" },
+  { t: "Mulan", y: 1998, g: "Animation" },
+  { t: "Tarzan", y: 1999, g: "Animation" },
+  { t: "Atlantis", y: 2001, g: "Animation" },
+  { t: "Lilo und Stitch", y: 2002, g: "Animation" },
+  { t: "Bärenbrüder", y: 2003, g: "Animation" },
+  { t: "Die Kühe sind los", y: 2004, g: "Animation" },
+  { t: "Himmel und Huhn", y: 2005, g: "Animation" },
+  { t: "Bolt", y: 2008, g: "Animation" },
+  { t: "Küss den Frosch", y: 2009, g: "Animation" },
+  { t: "Rapunzel", y: 2010, g: "Animation" },
+  { t: "Ralph reichts", y: 2012, g: "Animation" },
+  { t: "Baymax", y: 2014, g: "Animation" },
+  { t: "Zoomania", y: 2016, g: "Animation" },
+  { t: "Vaiana", y: 2016, g: "Animation" },
+  { t: "Ralph brichts", y: 2018, g: "Animation" },
+  { t: "Raya", y: 2021, g: "Animation" },
+  { t: "Luca", y: 2021, g: "Animation" },
+  { t: "Rot", y: 2022, g: "Animation" },
+  { t: "Lightyear", y: 2022, g: "Animation" },
+  { t: "Elemental", y: 2023, g: "Animation" },
+  { t: "Wish", y: 2023, g: "Animation" },
+  { t: "Kung Fu Panda", y: 2008, g: "Animation" },
+  { t: "Kung Fu Panda 2", y: 2011, g: "Animation" },
+  { t: "Drachenzähmen", y: 2010, g: "Animation" },
+  { t: "Madagascar", y: 2005, g: "Animation" },
+  { t: "Ice Age", y: 2002, g: "Animation" },
+  { t: "Ice Age 2", y: 2006, g: "Animation" },
+  { t: "Rio", y: 2011, g: "Animation" },
+  { t: "Sing", y: 2016, g: "Animation" },
+  { t: "Pets", y: 2016, g: "Animation" },
+  { t: "Minions", y: 2015, g: "Animation" },
+  { t: "Ich einfach unverbesserlich", y: 2010, g: "Animation" },
+  { t: "Oben 2", y: 2026, g: "Animation" },
+  { t: "Hotel Transsilvanien", y: 2012, g: "Animation" },
+  { t: "Coraline", y: 2009, g: "Animation" },
+  { t: "ParaNorman", y: 2012, g: "Animation" },
+  { t: "Boxtrolls", y: 2014, g: "Animation" },
+  { t: "Kubo", y: 2016, g: "Animation" },
+  { t: "Isle of Dogs", y: 2018, g: "Animation" },
+  { t: "Fantastic Mr Fox", y: 2009, g: "Animation" },
+  { t: "Wallace und Gromit", y: 2005, g: "Animation" },
+  { t: "Shaun das Schaf", y: 2015, g: "Animation" },
+  { t: "Chicken Run", y: 2000, g: "Animation" },
+  { t: "Flushed Away", y: 2006, g: "Animation" },
+  { t: "Arthur Christmas", y: 2011, g: "Animation" },
+  { t: "Der Polarexpress", y: 2004, g: "Animation" },
+  { t: "Kevin allein zu Haus", y: 1990, g: "Komödie" },
+  { t: "Kevin allein in New York", y: 1992, g: "Komödie" },
+  { t: "Schöne Bescherung", y: 1989, g: "Komödie" },
+  { t: "Ist das Leben nicht schön", y: 1946, g: "Drama" },
+  { t: "Der Zauberer von Oz", y: 1939, g: "Fantasy" },
+  { t: "Vom Winde verweht", y: 1939, g: "Drama" },
+  { t: "Casablanca", y: 1942, g: "Romanze" },
+  { t: "Die zwölf Geschworenen", y: 1957, g: "Drama" },
+  { t: "Zeugin der Anklage", y: 1957, g: "Krimi" },
+  { t: "Das Fenster zum Hof", y: 1954, g: "Thriller" },
+  { t: "Über den Dächern von Nizza", y: 1955, g: "Thriller" },
+  { t: "Im Zeichen des Bösen", y: 1958, g: "Krimi" },
+  { t: "Der dritte Mann", y: 1949, g: "Krimi" },
+  { t: "Die Spur des Falken", y: 1941, g: "Krimi" },
+  { t: "Der Malteser Falke", y: 1941, g: "Krimi" },
+  { t: "Fahrstuhl zum Schafott", y: 1958, g: "Thriller" },
+  { t: "Außer Atem", y: 1960, g: "Krimi" },
+  { t: "Die vierhundert Streiche", y: 1959, g: "Drama" },
+  { t: "Frühstück bei Tiffany", y: 1961, g: "Romanze" },
+  { t: "Wer die Nachtigall stört", y: 1962, g: "Drama" },
+  { t: "Lawrence von Arabien", y: 1962, g: "Abenteuer" },
+  { t: "Doktor Schiwago", y: 1965, g: "Drama" },
+  { t: "Zwei glorreiche Halunken", y: 1966, g: "Western" },
+  { t: "Spiel mir das Lied vom Tod", y: 1968, g: "Western" },
+  { t: "Für eine Handvoll Dollar", y: 1964, g: "Western" },
+  { t: "Der mit dem Wolf tanzt", y: 1990, g: "Western" },
+  { t: "Erbarmungslos", y: 1992, g: "Western" },
+  { t: "True Grit", y: 2010, g: "Western" },
+  { t: "Django Unchained", y: 2012, g: "Western" },
+  { t: "The Hateful Eight", y: 2015, g: "Western" },
+  { t: "Once Upon a Time in Hollywood", y: 2019, g: "Drama" },
+  { t: "Inglourious Basterds", y: 2009, g: "Krieg" },
+  { t: "Kill Bill", y: 2003, g: "Action" },
+  { t: "Kill Bill 2", y: 2004, g: "Action" },
+  { t: "Death Proof", y: 2007, g: "Action" },
+  { t: "Jackie Brown", y: 1997, g: "Krimi" },
+  { t: "Reservoir Dogs", y: 1992, g: "Krimi" },
+  { t: "Natural Born Killers", y: 1994, g: "Krimi" },
+  { t: "Sin City", y: 2005, g: "Krimi" },
+  { t: "300 Rise", y: 2014, g: "Action" },
+  { t: "Watchmen", y: 2009, g: "Action" },
+  { t: "Sucker Punch", y: 2011, g: "Action" },
+  { t: "Man of Steel 2", y: 2027, g: "Action" },
+  { t: "Scott Pilgrim gegen die Welt", y: 2010, g: "Komödie" },
+  { t: "Baby Driver", y: 2017, g: "Action" },
+  { t: "Hot Fuzz", y: 2007, g: "Komödie" },
+  { t: "Paul", y: 2011, g: "Komödie" },
+  { t: "The World's End", y: 2013, g: "Komödie" },
+  { t: "Zombie Party", y: 2004, g: "Komödie" },
+  { t: "Hangover", y: 2009, g: "Komödie" },
+  { t: "Hangover 2", y: 2011, g: "Komödie" },
+  { t: "Brautalarm", y: 2011, g: "Komödie" },
+  { t: "Superbad", y: 2007, g: "Komödie" },
+  { t: "Juno", y: 2007, g: "Komödie" },
+  { t: "Little Miss Sunshine", y: 2006, g: "Komödie" },
+  { t: "Napoleon Dynamite", y: 2004, g: "Komödie" },
+  { t: "School of Rock", y: 2003, g: "Komödie" },
+  { t: "Mean Girls", y: 2004, g: "Komödie" },
+  { t: "Ella im Glück", y: 2004, g: "Komödie" },
+  { t: "Der Teufel trägt Prada 2", y: 2026, g: "Komödie" },
+  { t: "Bridget Jones", y: 2001, g: "Komödie" },
+  { t: "Tagebuch einer Verlorenen", y: 2000, g: "Komödie" },
+  { t: "Love Actually", y: 2003, g: "Romanze" },
+  { t: "Vier Hochzeiten", y: 1994, g: "Komödie" },
+  { t: "About a Boy", y: 2002, g: "Komödie" },
+  { t: "Tatsächlich Liebe 2", y: 2026, g: "Romanze" },
+  { t: "Der große Gatsby", y: 2013, g: "Drama" },
+  { t: "Moulin Rouge 2", y: 2027, g: "Musical" },
+  { t: "Shakespeare in Love", y: 1998, g: "Romanze" },
+  { t: "Elizabeth", y: 1998, g: "Drama" },
+  { t: "Die Königin", y: 2006, g: "Drama" },
+  { t: "Der Eissturm", y: 1997, g: "Drama" },
+  { t: "American Beauty", y: 1999, g: "Drama" },
+  { t: "American Psycho", y: 2000, g: "Thriller" },
+  { t: "American History X", y: 1998, g: "Drama" },
+  { t: "Shawshank Redemption", y: 1994, g: "Drama" },
+  { t: "Green Mile", y: 1999, g: "Drama" },
+  { t: "Cast Away", y: 2000, g: "Drama" },
+  { t: "Philadelphia 2", y: 2026, g: "Drama" },
+  { t: "Der Sturm", y: 2000, g: "Drama" },
+  { t: "Perfect World", y: 1993, g: "Drama" },
+  { t: "Mystic River", y: 2003, g: "Krimi" },
+  { t: "Gone Baby Gone", y: 2007, g: "Krimi" },
+  { t: "Shutter Island", y: 2010, g: "Thriller" },
+  { t: "Cape Fear", y: 1991, g: "Thriller" },
+  { t: "Die üblichen Verdächtigen", y: 1995, g: "Krimi" },
+  { t: "L.A. Confidential", y: 1997, g: "Krimi" },
+  { t: "Memento", y: 2000, g: "Thriller" },
+  { t: "Insomnia", y: 2002, g: "Thriller" },
+  { t: "The Prestige", y: 2006, g: "Thriller" },
+  { t: "Dunkirk", y: 2017, g: "Krieg" },
+  { t: "Tenet", y: 2020, g: "Sci-Fi" },
+  { t: "Following", y: 1998, g: "Thriller" },
+  { t: "Interstellar 3", y: 2028, g: "Sci-Fi" },
+  { t: "Dune 3", y: 2026, g: "Sci-Fi" },
+  { t: "Blade Runner 3", y: 2027, g: "Sci-Fi" },
+  { t: "Tron", y: 1982, g: "Sci-Fi" },
+  { t: "Tron Legacy", y: 2010, g: "Sci-Fi" },
+  { t: "Ready Player One", y: 2018, g: "Sci-Fi" },
+  { t: "Minority Report", y: 2002, g: "Sci-Fi" },
+  { t: "A.I.", y: 2001, g: "Sci-Fi" },
+  { t: "I Robot", y: 2004, g: "Sci-Fi" },
+  { t: "Ex Machina", y: 2014, g: "Sci-Fi" },
+  { t: "Her", y: 2013, g: "Sci-Fi" },
+  { t: "Gattaca", y: 1997, g: "Sci-Fi" },
+  { t: "Equilibrium", y: 2002, g: "Sci-Fi" },
+  { t: "Children of Men", y: 2006, g: "Sci-Fi" },
+  { t: "Snowpiercer", y: 2013, g: "Sci-Fi" },
+  { t: "District 9", y: 2009, g: "Sci-Fi" },
+  { t: "Elysium", y: 2013, g: "Sci-Fi" },
+  { t: "Chappie", y: 2015, g: "Sci-Fi" },
+  { t: "Pacific Rim", y: 2013, g: "Sci-Fi" },
+  { t: "Edge of Tomorrow", y: 2014, g: "Sci-Fi" },
+  { t: "Oblivion", y: 2013, g: "Sci-Fi" },
+  { t: "Total Recall", y: 1990, g: "Sci-Fi" },
+  { t: "Robocop", y: 1987, g: "Sci-Fi" },
+  { t: "Starship Troopers", y: 1997, g: "Sci-Fi" },
+  { t: "Stargate", y: 1994, g: "Sci-Fi" },
+  { t: "Fifth Element", y: 1997, g: "Sci-Fi" },
+  { t: "Matrix 4", y: 2021, g: "Sci-Fi" },
+  { t: "Ghostbusters 2", y: 1989, g: "Komödie" },
+  { t: "Zurück in die Zukunft 2", y: 1989, g: "Sci-Fi" },
+  { t: "Zurück in die Zukunft 3", y: 1990, g: "Sci-Fi" },
+  { t: "Indiana Jones 2", y: 1984, g: "Abenteuer" },
+  { t: "Indiana Jones 3", y: 1989, g: "Abenteuer" },
+  { t: "Indiana Jones 4", y: 2008, g: "Abenteuer" },
+  { t: "Indiana Jones 5", y: 2023, g: "Abenteuer" },
+  { t: "Jurassic Park 2", y: 1997, g: "Abenteuer" },
+  { t: "Jurassic Park 3", y: 2001, g: "Abenteuer" },
+  { t: "Jurassic World", y: 2015, g: "Abenteuer" },
+  { t: "Der König der Löwen 2", y: 1998, g: "Animation" },
+  { t: "Findet Nemo 2", y: 2016, g: "Animation" },
+  { t: "Toy Story 3", y: 2010, g: "Animation" },
+  { t: "Toy Story 4", y: 2019, g: "Animation" },
+  { t: "Shrek 3", y: 2007, g: "Animation" },
+  { t: "Shrek 4", y: 2010, g: "Animation" },
+  { t: "Die Eiskönigin 2", y: 2019, g: "Animation" },
+  { t: "Cars", y: 2006, g: "Animation" },
+  { t: "Cars 2", y: 2011, g: "Animation" },
+  { t: "Cars 3", y: 2017, g: "Animation" },
+  { t: "Planes", y: 2013, g: "Animation" },
+  { t: "Merida", y: 2012, g: "Animation" },
+  { t: "Die Croods", y: 2013, g: "Animation" },
+  { t: "Trolls", y: 2016, g: "Animation" },
+  { t: "Smurfs", y: 2011, g: "Animation" },
+  { t: "Garfield", y: 2004, g: "Animation" },
+  { t: "Snoopy", y: 2015, g: "Animation" },
+  { t: "Paddington", y: 2014, g: "Komödie" },
+  { t: "Paddington 2", y: 2017, g: "Komödie" },
+  { t: "Christopher Robin", y: 2018, g: "Komödie" },
+  { t: "Mary Poppins", y: 1964, g: "Musical" },
+  { t: "Mary Poppins 2", y: 2018, g: "Musical" },
+  { t: "Chitty Chitty Bang Bang", y: 1968, g: "Musical" },
+  { t: "Willy Wonka", y: 1971, g: "Fantasy" },
+  { t: "Charlie und die Schokoladenfabrik", y: 2005, g: "Fantasy" },
+  { t: "Die unendliche Geschichte", y: 1984, g: "Fantasy" },
+  { t: "Der dunkle Kristall", y: 1982, g: "Fantasy" },
+  { t: "Labyrinth", y: 1986, g: "Fantasy" },
+  { t: "Die Braut des Prinzen", y: 1987, g: "Fantasy" },
+  { t: "Willow", y: 1988, g: "Fantasy" },
+  { t: "Conan", y: 1982, g: "Fantasy" },
+  { t: "Excalibur", y: 1981, g: "Fantasy" },
+  { t: "Die Nebel von Avalon", y: 2001, g: "Fantasy" },
+  { t: "Eragon", y: 2006, g: "Fantasy" },
+  { t: "Der goldene Kompass", y: 2007, g: "Fantasy" },
+  { t: "Narnia", y: 2005, g: "Fantasy" },
+  { t: "Percy Jackson", y: 2010, g: "Fantasy" },
+  { t: "Die Tribute von Panem", y: 2012, g: "Sci-Fi" },
+  { t: "Catching Fire", y: 2013, g: "Sci-Fi" },
+  { t: "Mockingjay", y: 2014, g: "Sci-Fi" },
+  { t: "Maze Runner", y: 2014, g: "Sci-Fi" },
+  { t: "Divergent", y: 2014, g: "Sci-Fi" },
+  { t: "Die Bestimmung", y: 2014, g: "Sci-Fi" },
+  { t: "Twilight", y: 2008, g: "Romanze" },
+  { t: "New Moon", y: 2009, g: "Romanze" },
+  { t: "Eclipse", y: 2010, g: "Romanze" },
+  { t: "Breaking Dawn", y: 2011, g: "Romanze" },
+  { t: "Harry Potter 5", y: 2007, g: "Fantasy" },
+  { t: "Harry Potter 6", y: 2009, g: "Fantasy" },
+  { t: "Harry Potter 7", y: 2010, g: "Fantasy" },
+  { t: "Harry Potter 8", y: 2011, g: "Fantasy" },
+  { t: "Phantastische Tierwesen", y: 2016, g: "Fantasy" },
+  { t: "Phantastische Tierwesen 2", y: 2018, g: "Fantasy" },
+  { t: "Phantastische Tierwesen 3", y: 2022, g: "Fantasy" },
+  { t: "Der Hobbit 2", y: 2013, g: "Fantasy" },
+  { t: "Der Hobbit 3", y: 2014, g: "Fantasy" },
+  { t: "Ringe der Macht", y: 2022, g: "Serie" },
+  { t: "Witcher Blood Origin", y: 2022, g: "Serie" },
+  { t: "Sandman", y: 2022, g: "Serie" },
+  { t: "Good Omens", y: 2019, g: "Serie" },
+  { t: "American Gods", y: 2017, g: "Serie" },
+  { t: "Preacher", y: 2016, g: "Serie" },
+  { t: "The Boys", y: 2019, g: "Serie" },
+  { t: "Invincible", y: 2021, g: "Animation" },
+  { t: "Umbrella Academy", y: 2019, g: "Serie" },
+  { t: "Doom Patrol", y: 2019, g: "Serie" },
+  { t: "Titans", y: 2018, g: "Serie" },
+  { t: "Daredevil", y: 2015, g: "Serie" },
+  { t: "Jessica Jones", y: 2015, g: "Serie" },
+  { t: "Punisher", y: 2017, g: "Serie" },
+  { t: "Loki", y: 2021, g: "Serie" },
+  { t: "WandaVision", y: 2021, g: "Serie" },
+  { t: "Falcon", y: 2021, g: "Serie" },
+  { t: "Hawkeye", y: 2021, g: "Serie" },
+  { t: "Moon Knight", y: 2022, g: "Serie" },
+  { t: "She-Hulk", y: 2022, g: "Serie" },
+  { t: "Ms Marvel", y: 2022, g: "Serie" },
+  { t: "Andor", y: 2022, g: "Serie" },
+  { t: "Obi-Wan", y: 2022, g: "Serie" },
+  { t: "Boba Fett", y: 2021, g: "Serie" },
+  { t: "Ahsoka", y: 2023, g: "Serie" },
+  { t: "Star Trek", y: 1966, g: "Serie" },
+  { t: "Next Generation", y: 1987, g: "Serie" },
+  { t: "Deep Space Nine", y: 1993, g: "Serie" },
+  { t: "Voyager", y: 1995, g: "Serie" },
+  { t: "Enterprise", y: 2001, g: "Serie" },
+  { t: "Discovery", y: 2017, g: "Serie" },
+  { t: "Picard", y: 2020, g: "Serie" },
+  { t: "Strange New Worlds", y: 2022, g: "Serie" },
+  { t: "Battlestar Galactica", y: 2004, g: "Serie" },
+  { t: "Firefly", y: 2002, g: "Serie" },
+  { t: "The Expanse", y: 2015, g: "Serie" },
+  { t: "Altered Carbon", y: 2018, g: "Serie" },
+  { t: "Lost in Space", y: 2018, g: "Serie" },
+  { t: "Raised by Wolves", y: 2020, g: "Serie" },
+  { t: "Foundation", y: 2021, g: "Serie" },
+  { t: "Halo", y: 2022, g: "Serie" },
+  { t: "Last of Us", y: 2023, g: "Serie" },
+  { t: "Fallout Serie", y: 2024, g: "Serie" },
+  { t: "Cyberpunk", y: 2022, g: "Serie" },
+  { t: "Arcane 2", y: 2024, g: "Animation" },
+  { t: "Blue Eye Samurai", y: 2023, g: "Animation" },
+  { t: "Scavengers Reign", y: 2023, g: "Animation" },
+  { t: "Pantheon", y: 2022, g: "Animation" },
+  { t: "Undone", y: 2019, g: "Animation" },
+  { t: "F is for Family", y: 2015, g: "Animation" },
+  { t: "Rick and Morty", y: 2013, g: "Animation" },
+  { t: "Solar Opposites", y: 2020, g: "Animation" },
+  { t: "Futurama", y: 1999, g: "Animation" },
+  { t: "Simpsons", y: 1989, g: "Animation" },
+  { t: "South Park", y: 1997, g: "Animation" },
+  { t: "Family Guy", y: 1999, g: "Animation" },
+  { t: "Bob's Burgers", y: 2011, g: "Animation" },
+  { t: "BoJack Horseman", y: 2014, g: "Animation" },
+  { t: "Big Mouth", y: 2017, g: "Animation" },
+  { t: "Disenchantment", y: 2018, g: "Animation" },
+  { t: "Inside Job", y: 2021, g: "Animation" },
+  { t: "Lower Decks", y: 2020, g: "Animation" },
+  { t: "Harley Quinn", y: 2019, g: "Animation" },
+  { t: "Primal", y: 2019, g: "Animation" },
+  { t: "Samurai Jack", y: 2001, g: "Animation" },
+  { t: "Avatar Herr der Elemente", y: 2005, g: "Animation" },
+  { t: "Korra", y: 2012, g: "Animation" },
+  { t: "She-Ra", y: 2018, g: "Animation" },
+  { t: "Dragon Prince", y: 2018, g: "Animation" },
+  { t: "Castlevania", y: 2017, g: "Animation" },
+  { t: "Blood of Zeus", y: 2020, g: "Animation" },
+  { t: "Masters of the Universe", y: 2021, g: "Animation" },
+  { t: "Vox Machina", y: 2022, g: "Animation" },
+  { t: "Dota", y: 2021, g: "Animation" },
+  { t: "Cuphead", y: 2022, g: "Animation" },
+  { t: "Sonic Prime", y: 2022, g: "Animation" },
+  { t: "Mario Film", y: 2023, g: "Animation" },
+  { t: "Sonic Film", y: 2020, g: "Abenteuer" },
+  { t: "Sonic Film 2", y: 2022, g: "Abenteuer" },
+  { t: "Detektiv Pikachu", y: 2019, g: "Abenteuer" },
+  { t: "Aladdin 2", y: 2026, g: "Fantasy" },
+  { t: "Mulan 2", y: 2026, g: "Fantasy" },
+  { t: "Arielle 2", y: 2027, g: "Fantasy" },
+  { t: "Schneewittchen 2025", y: 2025, g: "Fantasy" },
+  { t: "Lilo und Stitch 2025", y: 2025, g: "Abenteuer" },
+  { t: "Moana 2", y: 2024, g: "Animation" },
+  { t: "Vaiana 2", y: 2024, g: "Animation" },
+  { t: "Zoomania 2", y: 2025, g: "Animation" },
+  { t: "Alles steht Kopf 2", y: 2024, g: "Animation" },
+  { t: "Ich einfach unverbesserlich 4", y: 2024, g: "Animation" },
+  { t: "Kung Fu Panda 4", y: 2024, g: "Animation" },
+  { t: "Dune Prophecy", y: 2024, g: "Serie" },
+  { t: "Gladiator 2", y: 2024, g: "Action" },
+  { t: "Joker 2", y: 2024, g: "Drama" },
+  { t: "Beetlejuice 2", y: 2024, g: "Komödie" },
+  { t: "Alien Romulus", y: 2024, g: "Horror" },
+  { t: "Deadpool Wolverine", y: 2024, g: "Action" },
+  { t: "Furiosa", y: 2024, g: "Action" },
+  { t: "Planet der Affen", y: 2024, g: "Sci-Fi" },
+  { t: "Twisters", y: 2024, g: "Abenteuer" },
+  { t: "Wicked", y: 2024, g: "Musical" },
+  { t: "Nosferatu 2024", y: 2024, g: "Horror" },
+  { t: "Konklave", y: 2024, g: "Thriller" },
+  { t: "Anora", y: 2024, g: "Drama" },
+  { t: "Substanz", y: 2024, g: "Horror" },
+  { t: "Emilia Perez", y: 2024, g: "Musical" },
+  { t: "Brutalist", y: 2024, g: "Drama" },
+  { t: "Sing Sing", y: 2024, g: "Drama" },
+  { t: "Der wilde Roboter", y: 2024, g: "Animation" },
+  { t: "Flow", y: 2024, g: "Animation" },
+  { t: "Memoiren einer Schnecke", y: 2024, g: "Animation" }
+];
+
+const OFFEN = {
+  "Big Buck Bunny": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "Sintel": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "Tears of Steel": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "Elephants Dream": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "For Bigger Blazes": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "For Bigger Escapes": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "For Bigger Fun": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "For Bigger Joyrides": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "Subaru Outback": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "We Are Going On Bullrun": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"
+};
+</script>
+
+<script>
+"use strict";
+
+const Store = (function () {
+  let ok = true;
+  let mem = {};
+  try {
+    localStorage.setItem("__kl", "1");
+    localStorage.removeItem("__kl");
+  } catch (e) {
+    ok = false;
+  }
+  function roh() {
+    if (!ok) return mem;
+    try {
+      return JSON.parse(localStorage.getItem(LS) || "{}") || {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function schreib(o) {
+    if (!ok) {
+      mem = o;
+      return true;
+    }
+    try {
+      localStorage.setItem(LS, JSON.stringify(o));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  return {
+    ok: function () { return ok; },
+    lesen: roh,
+    schreiben: schreib,
+    setzen: function (p, w) {
+      const d = roh();
+      let c = d;
+      const t = p.split(".");
+      for (let i = 0; i < t.length - 1; i++) {
+        if (typeof c[t[i]] !== "object" || c[t[i]] === null) c[t[i]] = {};
+        c = c[t[i]];
+      }
+      c[t[t.length - 1]] = w;
+      return schreib(d);
+    },
+    zahl: function (p, um) {
+      const d = roh();
+      d.zaehler = d.zaehler || {};
+      d.zaehler[p] = (Number(d.zaehler[p]) || 0) + (um || 1);
+      schreib(d);
+    }
+  };
+})();
+
+function S() {
+  const g = Store.lesen().einstellungen || {};
+  const o = Object.assign({}, VORG, g);
+  o.portale = Object.assign({}, VORG.portale, g.portale || {});
+  o.parallel = Math.min(10, Math.max(1, Number(o.parallel) || 4));
+  o.timeout = Math.min(45000, Math.max(3000, Number(o.timeout) || 12000));
+  o.score = Math.min(1, Math.max(0, Number(o.score)));
+  o.max = Math.min(60, Math.max(3, Number(o.max) || 20));
+  o.katalog = o.katalog !== false;
+  return o;
+}
+
+const Z = {
+  treffer: [],
+  downloads: [],
+  laeuft: false,
+  abbruch: false,
+  zaehler: 0,
+  bericht: [],
+  sort: "score",
+  genre: ""
+};
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function el(t, c, x) {
+  const n = document.createElement(t);
+  if (c) n.className = c;
+  if (x !== undefined) n.textContent = x;
+  return n;
+}
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function norm(s) {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function bigr(s) {
+  const t = " " + s + " ";
+  const set = new Set();
+  for (let i = 0; i < t.length - 1; i++) set.add(t.slice(i, i + 2));
+  return set;
+}
+
+function dice(a, b) {
+  const A = bigr(a);
+  const B = bigr(b);
+  if (!A.size || !B.size) return 0;
+  let x = 0;
+  A.forEach(function (g) {
+    if (B.has(g)) x++;
+  });
+  return (2 * x) / (A.size + B.size);
+}
+
+function lev(a, b) {
+  a = a.slice(0, 90);
+  b = b.slice(0, 90);
+  const m = a.length;
+  const n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let p = [];
+  let c = [];
+  for (let j = 0; j <= n; j++) p[j] = j;
+  for (let i = 1; i <= m; i++) {
+    c[0] = i;
+    for (let j = 1; j <= n; j++) {
+      c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    const t = p;
+    p = c;
+    c = t;
+  }
+  return p[n];
+}
+
+function aehnlich(a, b) {
+  const A = norm(a);
+  const B = norm(b);
+  if (!A || !B) return 0;
+  if (A === B) return 1;
+  const l = 1 - lev(A, B) / Math.max(A.length, B.length);
+  return Math.max(0, Math.min(1, Math.max(l, dice(A, B))));
+}
+
+function sauber(u) {
+  try {
+    const x = new URL(u, location.href);
+    TRACK.forEach(function (p) {
+      x.searchParams.delete(p);
+    });
+    return x.toString();
+  } catch (e) {
+    return u;
+  }
+}
+
+function istWerbung(u) {
+  const s = String(u).toLowerCase();
+  return WERBUNG.some(function (w) {
+    return s.indexOf(w) !== -1;
+  });
+}
+
+function istDatei(u) {
+  return /\.(mp4|m4v|mov|webm|mkv|avi|m3u8)(\?|#|$)/i.test(u);
+}
+
+function istVideo(u) {
+  return /\.(mp4|m4v|mov|webm)(\?|#|$)/i.test(u);
+}
+
+function uhr() {
+  const d = new Date();
+  const p = function (n) { return String(n).padStart(2, "0"); };
+  return p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+}
+
+function meldung(x) {
+  const n = $("toast");
+  if (!n) return;
+  n.textContent = x;
+  n.classList.add("on");
+  clearTimeout(meldung._t);
+  meldung._t = setTimeout(function () {
+    n.classList.remove("on");
+  }, 2000);
+}
+
+function log(s, x) {
+  const k = $("konsole");
+  if (!k) return;
+  const z = el("div", "z " + (s || "i"));
+  z.appendChild(el("time", "", uhr()));
+  z.appendChild(el("span", "", String(x)));
+  k.insertBefore(z, k.firstChild);
+  while (k.children.length > 240) k.removeChild(k.lastChild);
+}
+
+function status(t, f) {
+  const s = $("status");
+  if (!s) return;
+  s.textContent = t;
+  if (s.parentElement) s.parentElement.classList.toggle("b", !!f);
+}
+
+function zaehle() {
+  const z = $("zaehler");
+  if (z) z.textContent = Z.zaehler + " Treffer";
+}
+
+function titelAus(x) {
+  let t = String(x || "")
+    .replace(/\s+/g, " ")
+    .replace(/\.(html?|php)$/i, "")
+    .replace(/\|.*$/, "")
+    .replace(/\(?(19|20)\d{2}\)?/g, " ")
+    .replace(/\b(stream|anschauen|online|kostenlos|gratis|deutsch|german|hd|full|movie|film|serie|staffel|folge|download|jetzt|ansehen)\b/gi, " ")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (t.length > 70) t = t.slice(0, 70).trim();
+  return t;
+}
+
+function hosterAus(u) {
+  for (let i = 0; i < HOSTER.length; i++) {
+    if (HOSTER[i].re.test(u)) return HOSTER[i];
+  }
+  return null;
+}
+</script>
+
+<script>
+"use strict";
+
+const Netz = { tot: {} };
+
+const READER = [
+  function (u) { return "https://r.jina.ai/" + u; }
+];
+
+const PROXIES = [
+  function (u) { return "https://api.allorigins.win/raw?url=" + encodeURIComponent(u); },
+  function (u) { return "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u); },
+  function (u) { return "https://corsproxy.io/?" + encodeURIComponent(u); },
+  function (u) { return "https://thingproxy.freeboard.io/fetch/" + u; }
+];
+
+function kette(roh) {
+  const alle = roh ? PROXIES.slice() : READER.concat(PROXIES);
+  const jetzt = Date.now();
+  const pr = roh ? "p" : "r";
+  const leben = alle.filter(function (f, i) {
+    const t = Netz.tot[pr + i];
+    return !(t && t > jetzt);
+  });
+  return leben.length ? leben : alle;
+}
+
+function readerMist(txt) {
+  const k = txt.slice(0, 900).toLowerCase();
+  if (k.indexOf("unauthorized") !== -1) return "401";
+  if (k.indexOf("too many requests") !== -1) return "429";
+  if (k.indexOf("rate limit") !== -1) return "Limit";
+  if (k.indexOf("just a moment") !== -1) return "Cloudflare";
+  if (k.indexOf("captcha") !== -1) return "Captcha";
+  if (k.indexOf("enable javascript") !== -1) return "JS";
+  return "";
+}
+
+async function hole(url, opt) {
+  const o = opt || {};
+  const timeout = o.timeout || S().timeout;
+  const liste = kette(o.roh);
+  const pr = o.roh ? "p" : "r";
+  let letzter = "kein Weg";
+  for (let i = 0; i < liste.length; i++) {
+    if (Z.abbruch) return { ok: false, fehler: "abgebrochen" };
+    const ziel = liste[i](url);
+    const istReader = ziel.indexOf("jina.ai") !== -1;
+    const ctrl = new AbortController();
+    const t = setTimeout(function () { ctrl.abort(); }, timeout);
+    const t0 = performance.now();
+    try {
+      const r = await fetch(ziel, {
+        signal: ctrl.signal,
+        headers: { Accept: "text/html,application/json,text/plain,*/*" },
+        cache: "no-store"
+      });
+      clearTimeout(t);
+      if (!r.ok) {
+        letzter = "HTTP " + r.status;
+        Netz.tot[pr + i] = Date.now() + 300000;
+        continue;
+      }
+      const txt = await r.text();
+      if (!txt || txt.length < 120) {
+        letzter = "leer";
+        continue;
+      }
+      if (istReader) {
+        const mist = readerMist(txt);
+        if (mist) {
+          letzter = "Reader " + mist;
+          Netz.tot[pr + i] = Date.now() + 120000;
+          continue;
+        }
+        if (linksAus(txt, url).length < 3) {
+          letzter = "Reader ohne Links";
+          continue;
+        }
+      }
+      return { ok: true, text: txt, dauer: performance.now() - t0 };
+    } catch (e) {
+      clearTimeout(t);
+      letzter = e && e.name === "AbortError" ? "Timeout" : ((e && e.message) || "Fehler");
+      Netz.tot[pr + i] = Date.now() + 300000;
+    }
+  }
+  return { ok: false, fehler: letzter };
+}
+
+function linksAus(text, basis) {
+  const roh = [];
+  let m;
+  const reA = /href\s*=\s*["']([^"']+)["']/gi;
+  while ((m = reA.exec(text)) !== null) roh.push(m[1]);
+  const reM = /\]\((https?:\/\/[^\s)]+)\)/g;
+  while ((m = reM.exec(text)) !== null) roh.push(m[1]);
+  const reB = /(https?:\/\/[^\s"'<>)]{8,220})/g;
+  while ((m = reB.exec(text)) !== null) roh.push(m[1]);
+  const raus = [];
+  const seen = new Set();
+  for (let i = 0; i < roh.length; i++) {
+    let u = roh[i].trim();
+    if (!u || u.charAt(0) === "#") continue;
+    if (u.indexOf("javascript:") === 0) continue;
+    if (u.indexOf("mailto:") === 0) continue;
+    try {
+      u = new URL(u, basis).toString();
+    } catch (e) {
+      continue;
+    }
+    if (seen.has(u)) continue;
+    seen.add(u);
+    raus.push(u);
+  }
+  return raus;
+}
+
+async function portalSuchen(p, q) {
+  const url = p.s(q);
+  const r = await hole(url, { timeout: S().timeout });
+  if (!r.ok) {
+    lernF(p.id, r.fehler);
+    return { p: p, ok: false, fehler: r.fehler };
+  }
+  lernO(p.id);
+  return { p: p, ok: true, text: r.text, url: url };
+}
+
+function trefferAus(a, q) {
+  const raus = [];
+  if (!a || !a.ok) return raus;
+  const links = linksAus(a.text, a.url);
+  const seen = new Set();
+  for (let i = 0; i < links.length; i++) {
+    const u = links[i];
+    if (istWerbung(u)) continue;
+    if (!/^https?:/i.test(u)) continue;
+    if (hosterAus(u) && !istDatei(u)) continue;
+    if (/\.(css|js|png|jpe?g|gif|svg|ico|woff2?)(\?|$)/i.test(u)) continue;
+    const seg = u.replace(/^https?:\/\/[^/]+/, "").split("/").filter(Boolean);
+    if (!seg.length) continue;
+    let roh = seg[seg.length - 1];
+    if (seg.length > 1 && /^(film|serie|stream|watch|movie|title|staffel|episode)$/i.test(roh)) {
+      roh = seg[seg.length - 2];
+    }
+    const tit = titelAus(decodeURIComponent(roh));
+    if (tit.length < 3) continue;
+    const s = aehnlich(tit, q);
+    if (s < 0.32) continue;
+    const k = norm(tit);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    raus.push({
+      titel: tit,
+      url: sauber(u),
+      portal: a.p.name,
+      pid: a.p.id,
+      score: s,
+      hoster: [],
+      geprueft: false,
+      katalog: false
+    });
+  }
+  return raus;
+}
+
+async function quellen(t) {
+  if (t.geprueft) return t;
+  t.geprueft = true;
+  const r = await hole(t.url, { timeout: S().timeout });
+  if (!r.ok) {
+    t.fehler = r.fehler;
+    return t;
+  }
+  const links = linksAus(r.text, t.url);
+  const seen = new Set();
+  for (let i = 0; i < links.length; i++) {
+    const h = hosterAus(links[i]);
+    if (!h || seen.has(h.id)) continue;
+    seen.add(h.id);
+    t.hoster.push({ id: h.id, name: h.name, url: sauber(links[i]) });
+  }
+  if (!t.hoster.length) {
+    links.filter(istDatei).slice(0, 3).forEach(function (d) {
+      t.hoster.push({ id: "d", name: "Direkt", url: d });
+    });
+  }
+  return t;
+}
+
+async function pool(liste, n, fn) {
+  const raus = new Array(liste.length);
+  let i = 0;
+  const w = [];
+  const grenze = Math.max(1, Math.min(n, liste.length));
+  for (let k = 0; k < grenze; k++) {
+    w.push((async function () {
+      while (i < liste.length) {
+        const idx = i++;
+        if (Z.abbruch) {
+          raus[idx] = null;
+          continue;
+        }
+        try {
+          raus[idx] = await fn(liste[idx], idx);
+        } catch (e) {
+          raus[idx] = null;
+        }
+      }
+    })());
+  }
+  await Promise.all(w);
+  return raus;
+}
+
+function lernO(id) {
+  const d = Store.lesen();
+  d.lern = d.lern || {};
+  const e = d.lern[id] || { ok: 0, f: 0 };
+  e.ok++;
+  d.lern[id] = e;
+  Store.schreiben(d);
+}
+
+function lernF(id, g) {
+  const d = Store.lesen();
+  d.lern = d.lern || {};
+  const e = d.lern[id] || { ok: 0, f: 0 };
+  e.f++;
+  e.g = g;
+  d.lern[id] = e;
+  Store.schreiben(d);
+}
+
+function lernW(id) {
+  const e = (Store.lesen().lern || {})[id];
+  if (!e || !(e.ok + e.f)) return 0.5;
+  return (e.ok + 1) / (e.ok + e.f + 2);
+}
+
+async function kiTitel(q) {
+  if (!S().key) return q;
+  try {
+    const r = await fetch(S().endpoint || VORG.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + S().key
+      },
+      body: JSON.stringify({
+        model: S().modell || VORG.modell,
+        temperature: 0.1,
+        messages: [
+          { role: "user", content: "Korrigiere den Filmtitel, antworte nur mit dem Titel: " + q }
+        ]
+      })
+    });
+    if (!r.ok) return q;
+    const j = await r.json();
+    const c = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    if (!c) return q;
+    const t = String(c).split("\n")[0].replace(/["']/g, "").trim();
+    if (!t || t.length > 80 || norm(t) === norm(q)) return q;
+    log("o", "KI: " + t);
+    return t;
+  } catch (e) {
+    return q;
+  }
+}
+
+function katalog(q) {
+  if (norm(q).length < 2) return [];
+  const raus = [];
+  KATALOG.forEach(function (k) {
+    const s = aehnlich(k.t, q);
+    if (s < 0.42) return;
+    raus.push({
+      titel: k.t + " (" + k.y + ")",
+      url: "",
+      portal: "Katalog",
+      pid: "katalog",
+      score: Math.min(0.99, s * 0.95),
+      hoster: [],
+      geprueft: true,
+      katalog: true,
+      genre: k.g,
+      jahr: k.y
+    });
+  });
+  raus.sort(function (a, b) { return b.score - a.score; });
+  return raus.slice(0, 10);
+}
+</script>
+
+<script>
+"use strict";
+
+const T = [];
+function t(n, f) { T.push({ n: n, f: f }); }
+
+const P = [
+  "Inception",
+  "The Mandalorian",
+  "Der Schuh des Manitu",
+  "Léon",
+  "Amélie",
+  "Das Boot",
+  "Sintel",
+  "Weiß",
+  "Über uns",
+  "Matrix",
+  "Herr der Ringe",
+  "Fack ju Göhte",
+  "Stranger Things",
+  "Oppenheimer",
+  "Dune",
+  "Tatort",
+  "Joker",
+  "Shrek",
+  "Breaking Bad",
+  "Toni Erdmann",
+  "Systemsprenger",
+  "Interstellar",
+  "Parasite",
+  "Whiplash",
+  "Big Buck Bunny"
+];
+
+const F = [
+  "Bauernregeln",
+  "Zebrastreifen",
+  "Quantenphysik",
+  "Küchengerät",
+  "Segelboot",
+  "Bienenstock",
+  "Druckerpatrone",
+  "Wolkenkuckucksheim"
+];
+
+function bauen() {
+  T.length = 0;
+
+  for (let i = 0; i < 500; i++) {
+    const b = P[i % P.length];
+    let v = b;
+    if (i % 6 === 0) v = b.toUpperCase();
+    if (i % 6 === 1) v = b.toLowerCase();
+    if (i % 6 === 2) v = b + " (200" + (i % 10) + ")";
+    if (i % 6 === 3) v = "  " + b + "  –  Stream  ";
+    if (i % 6 === 4) v = b + " | Filmpalast.to";
+    if (i % 6 === 5) v = b + "  1080p  German  DL";
+    t("norm " + i, function () {
+      const n = norm(v);
+      if (/[A-ZÄÖÜ]/.test(n)) return "Gross";
+      if (/[äöüß]/.test(n)) return "Umlaut";
+      if (/\s{2}/.test(n)) return "Doppelleerzeichen";
+      return n.length > 0 ? true : "leer";
+    });
+  }
+
+  for (let i = 0; i < 600; i++) {
+    const a = P[i % P.length];
+    if (i % 3 === 0) {
+      t("aehnlich gleich " + i, function () { return aehnlich(a, a) === 1 ? true : "nicht 1"; });
+    } else if (i % 3 === 1) {
+      t("aehnlich teil " + i, function () {
+        return aehnlich(a, a.slice(0, Math.max(3, a.length - 2))) > 0.5 ? true : "zu klein";
+      });
+    } else {
+      t("aehnlich fremd " + i, function () {
+        return aehnlich(a, F[i % F.length]) < 0.45 ? true : "zu gross";
+      });
+    }
+  }
+
+  for (let i = 0; i < 250; i++) {
+    t("sauber " + i, function () {
+      const s = sauber("https://b.de/f?utm_source=a&id=" + i + "&fbclid=z&utm_medium=b");
+      if (s.indexOf("utm_source") !== -1) return "utm";
+      if (s.indexOf("fbclid") !== -1) return "fbclid";
+      if (s.indexOf("utm_medium") !== -1) return "utm_medium";
+      return s.indexOf("id=" + i) !== -1 ? true : "id weg";
+    });
+  }
+
+  for (let i = 0; i < 250; i++) {
+    t("werbung " + i, function () {
+      if (!istWerbung("https://" + WERBUNG[i % WERBUNG.length] + "/x")) return "nicht erkannt";
+      if (istWerbung("https://filmpalast.to/film/x")) return "falsch";
+      return true;
+    });
+  }
+
+  HOSTER.forEach(function (h, ix) {
+    for (let i = 0; i < 20; i++) {
+      t("hoster " + h.id + " " + i, function () {
+        const r = hosterAus(h.bsp);
+        if (!r || r.id !== h.id) return "nicht erkannt";
+        if (hosterAus("https://b" + ix + i + ".de/x")) return "falsch";
+        return true;
+      });
+    }
+  });
+
+  for (let i = 0; i < 300; i++) {
+    t("titel " + i, function () {
+      const r = titelAus("Film.Name." + (1950 + (i % 70)) + ".German.DL.1080p.x264-GRP.mkv");
+      if (/\.mkv/i.test(r)) return "Endung";
+      if (/\b(19|20)\d{2}\b/.test(r)) return "Jahr";
+      if (r.length > 70) return "lang";
+      if (r.length < 3) return "kurz";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 250; i++) {
+    t("datei " + i, function () {
+      if (!istDatei("https://x.de/a" + i + ".mp4")) return "mp4";
+      if (!istDatei("https://x.de/a" + i + ".mkv?q=1")) return "mkv";
+      if (!istVideo("https://x.de/a" + i + ".mp4")) return "video";
+      if (istDatei("https://x.de/film/x")) return "seite";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 120; i++) {
+    t("grenzen " + i, function () {
+      Store.setzen("einstellungen", { parallel: 99, timeout: 1, score: 5, max: 999 });
+      const s = S();
+      if (s.parallel !== 10) return "parallel";
+      if (s.timeout !== 3000) return "timeout";
+      if (s.score !== 1) return "score";
+      if (s.max !== 60) return "max";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 120; i++) {
+    t("speicher " + i, function () {
+      Store.setzen("tv", i);
+      return Store.lesen().tv === i ? true : "roundtrip";
+    });
+  }
+
+  for (let i = 0; i < 300; i++) {
+    t("treffer " + i, function () {
+      const html = '<a href="/film/inception-' + i + '">Inception</a>' +
+        '<a href="https://doubleclick.net/x">ad</a>' +
+        '<a href="https://vidoza.net/embed-' + i + '.html">v</a>' +
+        '<a href="/a.js">js</a>' +
+        '<a href="/static/x.png">png</a>';
+      const r = trefferAus({
+        ok: true,
+        text: html,
+        url: "https://filmpalast.to/search/title/inception",
+        p: { id: "filmpalast", name: "Filmpalast" }
+      }, "Inception");
+      if (!r.length) return "leer";
+      if (r.some(function (x) { return istWerbung(x.url); })) return "werbung";
+      if (r.some(function (x) { return /\.js$/.test(x.url); })) return "js";
+      if (r.some(function (x) { return /\.png$/.test(x.url); })) return "png";
+      if (r[0].score <= 0) return "score";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 300; i++) {
+    t("katalog " + i, function () {
+      const k = KATALOG[i % KATALOG.length];
+      const r = katalog(k.t);
+      if (!r.length) return "leer";
+      if (r[0].score < 0.42) return "score";
+      if (r.length > 10) return "viele";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 250; i++) {
+    t("portalurl " + i, function () {
+      const u = PORTALE[i % PORTALE.length].s("test titel");
+      if (!/^https:\/\//.test(u)) return "https";
+      if (u.indexOf("test") === -1) return "query";
+      if (u.indexOf(" ") !== -1) return "space";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 300; i++) {
+    t("daten " + i, function () {
+      const k = KATALOG[i % KATALOG.length];
+      if (!k.t || k.t.length < 2) return "titel";
+      if (!k.y || k.y < 1900 || k.y > 2030) return "jahr";
+      if (!k.g) return "genre";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 100; i++) {
+    t("offen " + i, function () {
+      const k = KATALOG[i % 10].t;
+      const u = OFFEN[k];
+      if (!u) return "fehlt";
+      if (!istVideo(u)) return "kein video";
+      if (u.indexOf("https://") !== 0) return "kein https";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 100; i++) {
+    t("reader mist " + i, function () {
+      const proben = ["401 Unauthorized", "Too Many Requests", "rate limit reached", "Just a moment", "captcha please", "Please enable JavaScript"];
+      const r = readerMist(proben[i % proben.length]);
+      if (!r) return "nicht erkannt";
+      if (readerMist("<html><body><a href='/x'>ok</a></body></html>")) return "falsch positiv";
+      return true;
+    });
+  }
+
+  for (let i = 0; i < 150; i++) {
+    t("esc " + i, function () {
+      const s = esc("<b>" + i + " & \"x\"</b>");
+      if (s.indexOf("<b>") !== -1) return "spitz";
+      if (s.indexOf("&amp;") === -1) return "amp";
+      return true;
+    });
+  }
+}
+
+let testLauf = false;
+
+async function testsStarten() {
+  if (testLauf) return;
+  testLauf = true;
+  bauen();
+  const out = $("test-out");
+  const bal = $("test-balken");
+  const btn = $("tests-start");
+  if (btn) btn.disabled = true;
+  if (out) out.innerHTML = "";
+  if (bal) bal.style.width = "0%";
+  let ok = 0;
+  let fehler = 0;
+  let i = 0;
+  const fl = [];
+  const t0 = performance.now();
+  log("i", "Testsuite: " + T.length);
+
+  await new Promise(function (res) {
+    function step() {
+      const e = Math.min(i + 80, T.length);
+      for (; i < e; i++) {
+        let r;
+        try {
+          r = T[i].f();
+        } catch (x) {
+          r = "Ausnahme " + x.message;
+        }
+        if (r === true) {
+          ok++;
+        } else {
+          fehler++;
+          if (fl.length < 30) fl.push(T[i].n + " → " + r);
+        }
+      }
+      if (bal) bal.style.width = Math.round((i / T.length) * 100) + "%";
+      if (i < T.length) setTimeout(step, 0);
+      else res();
+    }
+    step();
+  });
+
+  Store.zahl("tests", ok);
+  if (out) {
+    out.innerHTML = "";
+    const k = el("div", "karte");
+    const b = el("b", "", ok + " von " + T.length + " bestanden");
+    b.style.color = fehler ? "var(--err)" : "var(--acc)";
+    k.appendChild(b);
+    k.appendChild(el("div", "meta", "Fehler: " + fehler + " · " + Math.round(performance.now() - t0) + " ms"));
+    out.appendChild(k);
+    if (fl.length) {
+      const tab = el("table");
+      fl.forEach(function (f) {
+        const tr = el("tr");
+        tr.appendChild(el("td", "w", f));
+        tab.appendChild(tr);
+      });
+      out.appendChild(tab);
+    }
+  }
+  log(fehler ? "e" : "o", "Tests: " + ok + "/" + T.length + " · " + fehler);
+  if (btn) btn.disabled = false;
+  testLauf = false;
+}
+</script>
+
+<script>
+"use strict";
+
+function namen() {
+  const t = document.querySelectorAll("template[data-page]");
+  const r = [];
+  for (let i = 0; i < t.length; i++) r.push(t[i].getAttribute("data-page"));
+  return r;
+}
+
+function bauSeite(n) {
+  if ($("page-" + n)) return;
+  const tp = document.querySelector('template[data-page="' + n + '"]');
+  if (!tp) return;
+  const s = el("section", "page");
+  s.id = "page-" + n;
+  s.appendChild(tp.content.cloneNode(true));
+  if ($("haupt")) $("haupt").appendChild(s);
+  verdrahten(n);
+}
+
+function zeige(n) {
+  bauSeite(n);
+  const ss = document.querySelectorAll(".page");
+  for (let i = 0; i < ss.length; i++) {
+    ss[i].classList.toggle("on", ss[i].id === "page-" + n);
+  }
+  const kn = document.querySelectorAll("#nav button");
+  for (let i = 0; i < kn.length; i++) {
+    kn[i].classList.toggle("active", kn[i].getAttribute("data-page") === n);
+  }
+  try { window.scrollTo(0, 0); } catch (e) {}
+  if (n === "download") zeichneDownloads();
+  if (n === "watchlist") zeichneWatchlist();
+  if (n === "verlauf") zeichneVerlauf();
+  if (n === "statistik") zeichneStatistik();
+  if (n === "diagnose") zeichneBericht();
+  if (n === "einstellungen") fuelle();
+  if (n === "suche") vorschlaege();
+}
+
+function verdrahten(n) {
+  if (n === "suche") {
+    if ($("start")) $("start").addEventListener("click", starte);
+    if ($("q")) {
+      $("q").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") starte();
+      });
+    }
+    if ($("jahr-weg")) {
+      $("jahr-weg").addEventListener("click", function () {
+        const f = $("q");
+        if (!f) return;
+        f.value = f.value.replace(/[\(\[]?(19|20)\d{2}[\)\]]?/g, " ").replace(/\s+/g, " ").trim();
+      });
+    }
+    if ($("abbrechen")) {
+      $("abbrechen").addEventListener("click", function () {
+        Z.abbruch = true;
+        status("abbruch", true);
+      });
+    }
+    if ($("sortierung")) {
+      $("sortierung").addEventListener("change", function (e) {
+        Z.sort = e.target.value;
+        zeichne();
+      });
+    }
+    vorschlaege();
+    genrefilter();
+  }
+  if (n === "player") {
+    if ($("p-start")) {
+      $("p-start").addEventListener("click", function () {
+        const u = $("p-url") ? $("p-url").value.trim() : "";
+        if (!u) { meldung("Keine URL"); return; }
+        spiele(u, "Video");
+      });
+    }
+    if ($("p-download")) {
+      $("p-download").addEventListener("click", function () {
+        const u = $("p-url") ? $("p-url").value.trim() : "";
+        if (u) zurDownload(u, "video.mp4");
+      });
+    }
+    if ($("p-kopie")) {
+      $("p-kopie").addEventListener("click", async function () {
+        const u = $("p-url") ? $("p-url").value.trim() : "";
+        if (!u) return;
+        try {
+          await navigator.clipboard.writeText(u);
+          meldung("Kopiert");
+        } catch (e) {
+          meldung("Blockiert");
+        }
+      });
+    }
+    if ($("p-stop")) {
+      $("p-stop").addEventListener("click", function () {
+        const v = $("p-video");
+        if (v) { v.pause(); v.removeAttribute("src"); v.load(); }
+        if ($("p-status")) $("p-status").textContent = "Gestoppt.";
+      });
+    }
+  }
+  if (n === "download") {
+    if ($("dl-leeren")) {
+      $("dl-leeren").addEventListener("click", function () {
+        Z.downloads = [];
+        zeichneDownloads();
+      });
+    }
+    if ($("dl-export")) {
+      $("dl-export").addEventListener("click", function () {
+        const t = JSON.stringify(Z.downloads, null, 2);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([t], { type: "application/json" }));
+        a.download = "downloads.json";
+        a.click();
+        meldung("Exportiert");
+      });
+    }
+  }
+  if (n === "watchlist") {
+    if ($("wl-add")) $("wl-add").addEventListener("click", wlAdd);
+    if ($("wl-ein")) {
+      $("wl-ein").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") wlAdd();
+      });
+    }
+    if ($("wl-alle")) $("wl-alle").addEventListener("click", wlAlle);
+    if ($("wl-leeren")) {
+      $("wl-leeren").addEventListener("click", function () {
+        Store.setzen("watchlist", []);
+        zeichneWatchlist();
+      });
+    }
+  }
+  if (n === "verlauf") {
+    if ($("vh-leeren")) {
+      $("vh-leeren").addEventListener("click", function () {
+        Store.setzen("verlauf", []);
+        zeichneVerlauf();
+      });
+    }
+  }
+  if (n === "statistik") {
+    if ($("st-reset")) {
+      $("st-reset").addEventListener("click", function () {
+        Store.setzen("zaehler", {});
+        zeichneStatistik();
+        meldung("Zurückgesetzt");
+      });
+    }
+  }
+  if (n === "diagnose") {
+    if ($("tests-start")) $("tests-start").addEventListener("click", testsStarten);
+    if ($("quellen-test")) $("quellen-test").addEventListener("click", quellenTest);
+  }
+  if (n === "einstellungen") {
+    if ($("e-speichern")) $("e-speichern").addEventListener("click", speichere);
+    if ($("e-export")) $("e-export").addEventListener("click", exportieren);
+    if ($("e-import")) $("e-import").addEventListener("click", importieren);
+    if ($("e-reset")) $("e-reset").addEventListener("click", reset);
+  }
+}
+
+function vorschlaege() {
+  const b = $("vorschlaege");
+  if (!b || b.children.length) return;
+  ["Sintel", "Big Buck Bunny", "Inception", "The Mandalorian", "Breaking Bad", "Oppenheimer", "Parasite"].forEach(function (x) {
+    const k = el("button", "", x);
+    k.addEventListener("click", function () {
+      const f = $("q");
+      if (f) f.value = x;
+      starte();
+    });
+    b.appendChild(k);
+  });
+}
+
+function genrefilter() {
+  const b = $("genre-filter");
+  if (!b || b.children.length) return;
+  const g = ["", "Offen", "Action", "Animation", "Anime", "Drama", "Horror", "Komödie", "Krimi", "Sci-Fi", "Serie", "Thriller"];
+  g.forEach(function (x) {
+    const k = el("button", x ? "" : "an", x || "Alle");
+    k.addEventListener("click", function () {
+      Z.genre = x;
+      const cs = b.querySelectorAll("button");
+      for (let i = 0; i < cs.length; i++) cs[i].classList.remove("an");
+      k.classList.add("an");
+      zeichne();
+    });
+    b.appendChild(k);
+  });
+}
+
+function sortiere(l) {
+  const a = l.slice();
+  if (Z.sort === "titel") a.sort(function (x, y) { return x.titel.localeCompare(y.titel, "de"); });
+  else if (Z.sort === "titel2") a.sort(function (x, y) { return y.titel.localeCompare(x.titel, "de"); });
+  else if (Z.sort === "jahr") a.sort(function (x, y) { return (y.jahr || 0) - (x.jahr || 0); });
+  else if (Z.sort === "portal") a.sort(function (x, y) { return x.portal.localeCompare(y.portal, "de"); });
+  else a.sort(function (x, y) { return y.score - x.score; });
+  return a;
+}
+
+async function starte() {
+  if (Z.laeuft) { meldung("Läuft schon"); return; }
+  const f = $("q");
+  if (!f) return;
+  const roh = f.value.trim();
+  if (roh.length < 2) { meldung("Mindestens 2 Zeichen"); return; }
+  Z.laeuft = true;
+  Z.abbruch = false;
+  Z.treffer = [];
+  Z.zaehler = 0;
+  Z.bericht = [];
+  zaehle();
+  if ($("abbrechen")) $("abbrechen").disabled = false;
+  if ($("start")) $("start").disabled = true;
+  const box = $("treffer");
+  if (box) box.innerHTML = '<div class="leer">Suche läuft …</div>';
+  status("suche", false);
+  Store.zahl("suchen", 1);
+
+  try {
+    const q = await kiTitel(roh);
+
+    if (S().katalog) {
+      const k = katalog(q);
+      Z.bericht.push({ quelle: "Katalog", ergebnis: k.length + " Treffer", ok: k.length > 0 });
+      if (k.length) {
+        Z.treffer = k.slice();
+        Z.zaehler = k.length;
+        zaehle();
+        zeichne();
+      }
+    }
+
+    const akt = PORTALE.filter(function (p) { return S().portale[p.id]; });
+    if (akt.length) {
+      const ant = await pool(akt, S().parallel, function (p) { return portalSuchen(p, q); });
+      let live = [];
+      ant.forEach(function (a) {
+        if (!a) return;
+        if (!a.ok) {
+          Z.bericht.push({ quelle: a.p.name, ergebnis: a.fehler, ok: false });
+          return;
+        }
+        const r = trefferAus(a, q);
+        Z.bericht.push({ quelle: a.p.name, ergebnis: r.length + " Treffer", ok: r.length > 0 });
+        live = live.concat(r);
+      });
+      if (live.length) {
+        const best = new Map();
+        live.forEach(function (x) {
+          const k = norm(x.titel);
+          const a = best.get(k);
+          if (!a || x.score > a.score) best.set(k, x);
+        });
+        let l = Array.from(best.values());
+        l.forEach(function (x) {
+          x.score = Math.min(1, x.score * 0.75 + lernW(x.pid) * 0.25);
+        });
+        l = l.filter(function (x) { return x.score >= S().score; }).slice(0, S().max);
+        Z.treffer = Z.treffer.concat(l);
+        Z.zaehler = Z.treffer.length;
+        zaehle();
+        zeichne();
+      }
+    }
+
+    if (!Z.treffer.length) {
+      const g = Z.bericht.filter(function (b) { return !b.ok; })
+        .map(function (b) { return b.quelle + ": " + b.ergebnis; })
+        .slice(0, 4)
+        .join(" · ");
+      if (box) {
+        box.innerHTML = '<div class="leer">Kein Treffer.<br><span style="font-size:.75rem">' +
+          esc(g || "keine Quelle aktiv") + "</span></div>";
+      }
+    }
+
+    Store.zahl("treffer", Z.treffer.length);
+    const v = Store.lesen().verlauf || [];
+    v.unshift({ q: q, n: Z.treffer.length, t: Date.now() });
+    Store.setzen("verlauf", v.slice(0, 60));
+  } catch (e) {
+    if (box) box.innerHTML = '<div class="leer">Fehler: ' + esc(e.message) + "</div>";
+  } finally {
+    Z.laeuft = false;
+    if ($("abbrechen")) $("abbrechen").disabled = true;
+    if ($("start")) $("start").disabled = false;
+    status("bereit", false);
+  }
+}
+
+function zeichne() {
+  const box = $("treffer");
+  if (!box) return;
+  box.innerHTML = "";
+  let liste = Z.treffer;
+  if (Z.genre) {
+    liste = liste.filter(function (x) { return x.genre === Z.genre; });
+  }
+  liste = sortiere(liste);
+  box.appendChild(el("div", "hinweis", liste.length + " Treffer"));
+  const alle = el("button", "btn ghost klein", "Alle Quellen holen");
+  alle.style.margin = "8px 0 12px";
+  alle.addEventListener("click", function () {
+    alle.disabled = true;
+    const offen = Z.treffer.filter(function (x) { return !x.geprueft; });
+    pool(offen, 3, function (x) { return quellen(x); }).then(function () {
+      zeichne();
+      meldung("Fertig");
+    });
+  });
+  box.appendChild(alle);
+
+  if (!liste.length) {
+    box.appendChild(el("div", "leer", "Keine Treffer in diesem Filter."));
+    return;
+  }
+
+  liste.forEach(function (t) {
+    const k = el("div", "karte");
+    k.appendChild(el("b", "", t.titel));
+    const m = el("div", "meta");
+    m.appendChild(el("span", "pille " + (t.score > 0.7 ? "gut" : t.score > 0.5 ? "mittel" : "schlecht"), Math.round(t.score * 100) + "%"));
+    m.appendChild(document.createTextNode(t.portal + (t.genre ? " · " + t.genre : "")));
+    k.appendChild(m);
+
+    const r = el("div", "hoster");
+
+    if (t.katalog) {
+      const tn = t.titel.replace(/\s*\(\d{4}\)$/, "");
+      const u = OFFEN[tn];
+      if (u) {
+        const a = document.createElement("a");
+        a.className = "mp4";
+        a.href = u;
+        a.download = tn.replace(/\s+/g, "_") + ".mp4";
+        a.rel = "noopener";
+        a.appendChild(el("b", "", "MP4"));
+        a.appendChild(document.createTextNode(" Datei speichern"));
+        r.appendChild(a);
+
+        const p = el("a", "", "Player");
+        p.href = "#";
+        p.addEventListener("click", function (ev) {
+          ev.preventDefault();
+          spiele(u, tn);
+        });
+        r.appendChild(p);
+
+        const d = el("a", "", "in Downloads");
+        d.href = "#";
+        d.addEventListener("click", function (ev) {
+          ev.preventDefault();
+          zurDownload(u, tn + ".mp4");
+        });
+        r.appendChild(d);
+      }
+      PORTALE.filter(function (p) { return S().portale[p.id]; }).slice(0, 3).forEach(function (p) {
+        const a = el("a");
+        a.href = p.s(tn);
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = p.name;
+        r.appendChild(a);
+      });
+    } else {
+      const s = el("a", "", "Seite");
+      s.href = t.url;
+      s.target = "_blank";
+      s.rel = "noopener noreferrer";
+      r.appendChild(s);
+
+      if (t.hoster.length) {
+        t.hoster.forEach(function (h) {
+          const a = document.createElement("a");
+          if (istVideo(h.url)) a.className = "mp4";
+          a.href = h.url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.appendChild(el("b", "", h.name));
+          a.appendChild(document.createTextNode(istVideo(h.url) ? " Datei" : " öffnen"));
+          r.appendChild(a);
+        });
+      } else if (t.geprueft) {
+        r.appendChild(el("span", "pille schlecht", t.fehler ? "keine Hoster: " + t.fehler : "keine Hoster"));
+      } else {
+        const h = el("span", "lnk", "Quellen holen");
+        h.addEventListener("click", async function () {
+          h.textContent = "…";
+          await quellen(t);
+          zeichne();
+        });
+        r.appendChild(h);
+      }
+    }
+
+    const w = el("span", "lnk", "+ Watchlist");
+    w.addEventListener("click", function () { wlSpeichern(t.titel); });
+    r.appendChild(w);
+
+    k.appendChild(r);
+    box.appendChild(k);
+  });
+}
+
+function spiele(u, n) {
+  zeige("player");
+  if ($("p-url")) $("p-url").value = u;
+  const v = $("p-video");
+  if (v) {
+    v.src = u;
+    v.load();
+  }
+  if ($("p-status")) $("p-status").textContent = "Geladen: " + n;
+}
+
+function zurDownload(u, n) {
+  Z.downloads.unshift({ url: u, name: n, t: Date.now() });
+  meldung("In Downloads");
+  Store.zahl("downloads", 1);
+  zeichneDownloads();
+}
+
+function zeichneDownloads() {
+  const box = $("dl-liste");
+  if (!box) return;
+  box.innerHTML = "";
+  if (!Z.downloads.length) {
+    box.innerHTML = '<div class="leer">Keine Dateien.</div>';
+    return;
+  }
+  Z.downloads.forEach(function (d) {
+    const k = el("div", "karte");
+    k.appendChild(el("b", "", d.name));
+    k.appendChild(el("div", "meta", d.url.slice(0, 70)));
+    const r = el("div", "hoster");
+
+    const a = document.createElement("a");
+    a.className = "mp4";
+    a.href = d.url;
+    a.download = d.name.replace(/[\/\\:*?"<>|]+/g, "_");
+    a.rel = "noopener";
+    a.textContent = "Datei speichern";
+    r.appendChild(a);
+
+    const p = el("a", "", "Player");
+    p.href = "#";
+    p.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      spiele(d.url, d.name);
+    });
+    r.appendChild(p);
+
+    const o = el("a", "", "neuer Tab");
+    o.href = d.url;
+    o.target = "_blank";
+    o.rel = "noopener noreferrer";
+    r.appendChild(o);
+
+    k.appendChild(r);
+    box.appendChild(k);
+  });
+}
+
+function wlSpeichern(x) {
+  const w = Store.lesen().watchlist || [];
+  if (w.some(function (y) { return norm(y) === norm(x); })) {
+    meldung("Schon gespeichert");
+    return;
+  }
+  w.unshift(x);
+  Store.setzen("watchlist", w.slice(0, 120));
+  meldung("Gespeichert");
+}
+
+function wlAdd() {
+  const f = $("wl-ein");
+  if (!f) return;
+  const x = f.value.trim();
+  if (x.length < 2) return;
+  wlSpeichern(x);
+  f.value = "";
+  zeichneWatchlist();
+}
+
+async function wlAlle() {
+  const w = Store.lesen().watchlist || [];
+  if (!w.length) return;
+  for (let i = 0; i < w.length; i++) {
+    const f = $("q");
+    if (f) f.value = w[i];
+    zeige("suche");
+    await starte();
+    await new Promise(function (r) { setTimeout(r, 1200); });
+  }
+}
+
+function zeichneWatchlist() {
+  const b = $("wl-liste");
+  if (!b) return;
+  b.innerHTML = "";
+  const w = Store.lesen().watchlist || [];
+  if (!w.length) {
+    b.innerHTML = '<div class="leer">Leer.</div>';
+    return;
+  }
+  w.forEach(function (x) {
+    const k = el("div", "karte");
+    k.appendChild(el("b", "", x));
+    const r = el("div", "hoster");
+    const s = el("span", "lnk", "Suchen");
+    s.addEventListener("click", function () {
+      const f = $("q");
+      if (f) f.value = x;
+      zeige("suche");
+      starte();
+    });
+    r.appendChild(s);
+    const e = el("span", "lnk", "Entfernen");
+    e.addEventListener("click", function () {
+      Store.setzen("watchlist", w.filter(function (y) { return y !== x; }));
+      zeichneWatchlist();
+    });
+    r.appendChild(e);
+    k.appendChild(r);
+    b.appendChild(k);
+  });
+}
+
+function zeichneVerlauf() {
+  const b = $("vh-liste");
+  if (!b) return;
+  b.innerHTML = "";
+  const v = Store.lesen().verlauf || [];
+  if (!v.length) {
+    b.innerHTML = '<div class="leer">Kein Verlauf.</div>';
+    return;
+  }
+  v.forEach(function (e) {
+    const k = el("div", "karte");
+    k.appendChild(el("b", "", e.q));
+    k.appendChild(el("div", "meta", e.n + " Treffer · " + new Date(e.t).toLocaleString("de-DE")));
+    const r = el("div", "hoster");
+    const s = el("span", "lnk", "Wiederholen");
+    s.addEventListener("click", function () {
+      const f = $("q");
+      if (f) f.value = e.q;
+      zeige("suche");
+      starte();
+    });
+    r.appendChild(s);
+    k.appendChild(r);
+    b.appendChild(k);
+  });
+}
+
+function zeichneStatistik() {
+  const z = Store.lesen().zaehler || {};
+  if ($("st-suchen")) $("st-suchen").textContent = z.suchen || 0;
+  if ($("st-treffer")) $("st-treffer").textContent = z.treffer || 0;
+  if ($("st-downloads")) $("st-downloads").textContent = z.downloads || 0;
+  if ($("st-tests")) $("st-tests").textContent = z.tests || 0;
+  if ($("st-quellen")) {
+    $("st-quellen").textContent = PORTALE.filter(function (p) { return S().portale[p.id]; }).length;
+  }
+}
+
+function zeichneBericht() {
+  const b = $("bericht");
+  if (!b) return;
+  b.innerHTML = "";
+  if (!Z.bericht.length) {
+    b.innerHTML = '<div class="leer">Noch keine Suche.</div>';
+    return;
+  }
+  const tab = el("table");
+  Z.bericht.forEach(function (x) {
+    const tr = el("tr");
+    tr.appendChild(el("td", "w", x.quelle));
+    const td = el("td");
+    td.appendChild(el("span", "pille " + (x.ok ? "gut" : "schlecht"), x.ergebnis));
+    tr.appendChild(td);
+    tab.appendChild(tr);
+  });
+  b.appendChild(tab);
+}
+
+function zeichneLern() {
+  const b = $("lern-out");
+  if (!b) return;
+  const l = Store.lesen().lern || {};
+  const ids = Object.keys(l);
+  if (!ids.length) {
+    b.textContent = "Noch keine Daten.";
+    return;
+  }
+  ids.sort(function (a, c) { return lernW(c) - lernW(a); });
+  b.textContent = ids.map(function (id) {
+    const e = l[id];
+    const p = PORTALE.filter(function (x) { return x.id === id; })[0];
+    return (p ? p.name : id) + ": " + e.ok + " ok / " + e.f + " Fehler → " + Math.round(lernW(id) * 100) + "%";
+  }).join(" · ");
+}
+
+async function quellenTest() {
+  const out = $("diag-out");
+  if (!out) return;
+  out.innerHTML = '<div class="leer">Läuft …</div>';
+  const pr = [];
+  pr.push({ a: "Reader", n: "r.jina.ai", u: "https://example.com" });
+  PROXIES.forEach(function (f, i) {
+    pr.push({ a: "Proxy", n: "P" + (i + 1), u: "https://example.com" });
+  });
+  PORTALE.forEach(function (p) {
+    pr.push({ a: "Portal", n: p.name, u: p.s("matrix") });
+  });
+  const erg = await pool(pr, 3, async function (p) {
+    const r = await hole(p.u, { roh: p.a === "Proxy", timeout: 9000 });
+    return { p: p, ok: r.ok, f: r.fehler };
+  });
+  out.innerHTML = "";
+  const tab = el("table");
+  let ok = 0;
+  erg.forEach(function (e) {
+    if (!e) return;
+    if (e.ok) ok++;
+    const tr = el("tr");
+    tr.appendChild(el("td", "w", e.p.a));
+    tr.appendChild(el("td", "w", e.p.n));
+    const td = el("td");
+    td.appendChild(el("span", "pille " + (e.ok ? "gut" : "schlecht"), e.ok ? "ok" : (e.f || "tot")));
+    tr.appendChild(td);
+    tab.appendChild(tr);
+  });
+  out.appendChild(tab);
+  out.appendChild(el("p", "hinweis", ok + "/" + erg.length + " erreichbar"));
+  log(ok > 2 ? "o" : "w", "Quellentest " + ok + "/" + erg.length);
+}
+
+function fuelle() {
+  const s = S();
+  if ($("e-parallel")) $("e-parallel").value = s.parallel;
+  if ($("e-timeout")) $("e-timeout").value = s.timeout;
+  if ($("e-score")) $("e-score").value = s.score;
+  if ($("e-max")) $("e-max").value = s.max;
+  if ($("e-katalog")) $("e-katalog").checked = s.katalog;
+  if ($("e-key")) $("e-key").value = s.key || "";
+  if ($("e-endpoint")) $("e-endpoint").value = s.endpoint || "";
+  if ($("e-modell")) $("e-modell").value = s.modell || "";
+  const b = $("portale-box");
+  if (!b) return;
+  b.innerHTML = "";
+  PORTALE.forEach(function (p) {
+    const l = el("label");
+    l.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.85rem";
+    const c = document.createElement("input");
+    c.type = "checkbox";
+    c.checked = !!s.portale[p.id];
+    c.setAttribute("data-portal", p.id);
+    l.appendChild(c);
+    l.appendChild(document.createTextNode(p.name));
+    b.appendChild(l);
+  });
+}
+
+function speichere() {
+  const po = {};
+  document.querySelectorAll("[data-portal]").forEach(function (c) {
+    po[c.getAttribute("data-portal")] = c.checked;
+  });
+  Store.setzen("einstellungen", {
+    parallel: Number($("e-parallel").value),
+    timeout: Number($("e-timeout").value),
+    score: Number($("e-score").value),
+    max: Number($("e-max").value),
+    katalog: $("e-katalog").checked,
+    key: $("e-key").value.trim(),
+    endpoint: $("e-endpoint").value.trim(),
+    modell: $("e-modell").value.trim(),
+    portale: po
+  });
+  meldung("Gespeichert");
+  log("o", "Einstellungen gespeichert");
+}
+
+function exportieren() {
+  $("e-daten").value = JSON.stringify(Store.lesen(), null, 2);
+  meldung("Export im Feld");
+}
+
+function importieren() {
+  try {
+    Store.schreiben(JSON.parse($("e-daten").value));
+    fuelle();
+    meldung("Importiert");
+  } catch (e) {
+    meldung("Ungültiges JSON");
+  }
+}
+
+function reset() {
+  if (!confirm("Alle Daten löschen?")) return;
+  Store.schreiben({});
+  fuelle();
+  meldung("Zurückgesetzt");
+}
+</script>
+
+<script>
+"use strict";
+
+const Sup = {
+  pruefe: function () {
+    const b = [];
+    if (!$("nav")) b.push("nav");
+    if (!$("haupt")) b.push("main");
+    if (!$("konsole")) b.push("konsole");
+    const n = namen();
+    if (!n.length) b.push("vorlagen");
+    n.forEach(function (x) {
+      if (!$("page-" + x)) b.push("seite " + x);
+    });
+    if (!Store.ok()) b.push("speicher");
+    if (!document.querySelector(".page.on")) b.push("aktiv");
+    return b;
+  },
+  rep: function () {
+    namen().forEach(bauSeite);
+    if (!document.querySelector(".page.on")) zeige("suche");
+    const d = Store.lesen();
+    if (!d.einstellungen) Store.setzen("einstellungen", {});
+    if (!Array.isArray(d.watchlist)) Store.setzen("watchlist", []);
+    if (!Array.isArray(d.verlauf)) Store.setzen("verlauf", []);
+    if (typeof d.lern !== "object" || d.lern === null) Store.setzen("lern", {});
+    if (typeof d.zaehler !== "object" || d.zaehler === null) Store.setzen("zaehler", {});
+  },
+  lauf: function () {
+    const b = this.pruefe();
+    if (!b.length) return true;
+    log("w", "Supervisor: " + b.join(", "));
+    this.rep();
+    const b2 = this.pruefe();
+    log(b2.length ? "e" : "o", b2.length ? "offen: " + b2.join(", ") : "alle Funktionen geprüft");
+    return !b2.length;
+  }
+};
+
+function banner(c, x) {
+  const b = $("banner");
+  if (!b) return;
+  b.className = c || "";
+  b.textContent = x;
+}
+
+async function selbsttest() {
+  const ok = Sup.lauf();
+  const sp = Store.ok();
+  const nz = navigator.onLine !== false;
+  const teile = [
+    "Struktur " + (ok ? "ok" : "repariert"),
+    "Seiten " + document.querySelectorAll(".page").length,
+    "Speicher " + (sp ? "ok" : "Sitzung"),
+    "Netz " + (nz ? "online" : "offline")
+  ];
+  if (ok && sp && nz) {
+    banner("gut", "Selbsttest bestanden · " + teile.join(" · "));
+    log("o", "Selbsttest bestanden");
+  } else if (nz) {
+    banner("warn", "Eingeschränkt · " + teile.join(" · "));
+  } else {
+    banner("schlecht", "Offline · " + teile.join(" · "));
+  }
+}
+
+function start() {
+  try {
+    namen().forEach(bauSeite);
+    Sup.rep();
+    zeige("suche");
+    fuelle();
+    log("o", "Kinolotse " + APP.version + " gestartet");
+    log("i", "Katalog " + KATALOG.length + " · Portale " + PORTALE.length + " · Hoster " + HOSTER.length);
+    selbsttest();
+    setInterval(function () {
+      if (Sup.pruefe().length) Sup.rep();
+    }, 120000);
+    window.addEventListener("online", selbsttest);
+    window.addEventListener("offline", function () {
+      banner("schlecht", "Verbindung verloren.");
+    });
+  } catch (e) {
+    log("e", "Startfehler: " + e.message);
+    banner("schlecht", "Startfehler: " + e.message);
+  }
+}
+
+document.addEventListener("click", function (e) {
+  const b = e.target && e.target.closest ? e.target.closest("#nav button") : null;
+  if (!b) return;
+  const p = b.getAttribute("data-page");
+  if (p) zeige(p);
+});
+
+if ($("konsole-leeren")) {
+  $("konsole-leeren").addEventListener("click", function () {
+    if ($("konsole")) $("konsole").innerHTML = "";
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", start);
+} else {
+  start();
+}
+</script>
+</body>
+</html>
